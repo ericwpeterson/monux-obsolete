@@ -3,9 +3,7 @@
 
 MonObjects + Redux = Monux
 
-## Why another layer of layer of an abstraction? 
-
-Marrying Redux and MonObjects provides a structured state shape and maximizes code reuse
+Marrying Redux and [MonObjects](https://github.com/ericwpeterson/monobjects) to provide a structured state shape and maximize code reuse. 
 
 ## Examples 
 Coming Soon

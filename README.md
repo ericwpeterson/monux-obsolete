@@ -16,7 +16,7 @@ Coming Soon
 
 Copy files from src to your project. 
 
-## The monux state shape
+## The Monux State Shape
 
 ```javascript
 
@@ -51,7 +51,7 @@ export const REQUEST = {
   }
 } 
 ```
-## The actions 
+## Annnd Action! 
 
 ```javascript
 export function get(monobject, property) {

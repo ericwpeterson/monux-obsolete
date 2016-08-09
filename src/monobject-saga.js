@@ -1,6 +1,5 @@
 
 import io from 'socket.io-client';
-import { eventChannel } from 'redux-saga';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
 import { opStarted, opCompleted } from './monobject-actions';
 

@@ -1,7 +1,7 @@
 
 # monux
 
-MonObjects + Redux = Monux
+[MonObjects](https://github.com/ericwpeterson/monobjects) + Redux = Monux
 
 Marrying Redux and [MonObjects](https://github.com/ericwpeterson/monobjects) to provide a structured state shape and maximize code reuse. 
 

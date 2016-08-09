@@ -1,0 +1,43 @@
+{
+  "name": "monux",
+  "version": "0.0.9",
+  "description": "MonObjects + Redux = MonUx",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --compilers js:babel-core/register --require ./test/test_helper.js  --recursive  --require babel-polyfill",
+    "test:watch": "npm run test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sockstabby/monux.git"
+  },
+  "author": "Eric Peterson npm.monobjects.erockp1@gmail.com (https://github.com/sockstabby/monux.git)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sockstabby/monux/issues"
+  },
+  "devDependencies": {
+    "underscore": "~1.8.3",
+    "mocha": "~2.4.5",
+    "immutable": "~3.7.6",
+    "babel-cli": "6.5.1",
+    "babel-core": "6.5.1",
+    "babel-preset-es2015": "6.5.0",
+    "chai": "^3.5.0",
+    "chai-immutable": "^1.5.4"
+  },
+  "dependencies": {
+    "immutable": "~3.7.6",
+    "redux-saga": "^0.11.0",
+    "socket.io-client": "^1.4.8",
+    "underscore": "~1.8.3"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  }
+}

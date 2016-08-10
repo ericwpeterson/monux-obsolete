@@ -19,7 +19,7 @@ export function get(monobject, property) {
         payload: {
             message: "Get",
             data: {
-                monobject: monobject,
+                monObject: monobject,
                 property: property
             }
         }
@@ -32,7 +32,7 @@ export function set(monobject, property, value) {
         payload: {
             message: "Set",
             data: {
-                monobject: monobject,
+                monObject: monobject,
                 property: property,
                 value: value
             }
@@ -46,7 +46,7 @@ export function call(monobject, method, args) {
         payload: {
             message: "Call",
             data: {
-                monobject: monobject,
+                monObject: monobject,
                 method: method,
                 args: args
             }
@@ -60,7 +60,7 @@ export function watch(monobject, property) {
         payload: {
             message: "Watch",
             data: {
-                monobject: monobject,
+                monObject: monobject,
                 property: property
             }
         }
@@ -73,7 +73,7 @@ export function unwatch(monobject, property) {
         payload: {
             message: "UnWatch",
             data: {
-                monobject: monobject,
+                monObject: monobject,
                 property: property
             }
         }

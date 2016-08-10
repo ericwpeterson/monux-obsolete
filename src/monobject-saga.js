@@ -3,6 +3,8 @@ import io from 'socket.io-client';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
 import { opStarted, opCompleted } from './monobject-actions';
 
+const PORT = 8090;
+
 ///////////////////////////////////////////////////////////////////
 //
 // unit test helpers
@@ -53,21 +55,26 @@ var Socket = function() {
     let socket;
     let handler;
 
-    socket.on('opCompleted', function(opCompletedPacket) {
-        if (this.onmessage) {
-            let e = {
-                data: {
-                    message: 'opCompleted',
-                    payload: opCompletedPacket
-                }
-            };
-            this.onmessage(e);
-        }
-    });
-
     return {
         connect: function() {
-            socket = io.connect();
+            let s = io.connect();
+
+            let protocol = s.io.engine.secure ? "https://" : "http://";
+            socket = io.connect(protocol + s.io.engine.hostname + ":" + PORT);
+
+            socket.on('opCompleted', (opCompletedPacket) => {
+
+                if (this.onmessage) {
+                    let e = {
+                        data: {
+                            message: 'opCompleted',
+                            payload: opCompletedPacket
+                        }
+                    };
+                    this.onmessage(e);
+                }
+            });
+
             return new Promise(resolve => {
                 socket.on('connect', () => {
                     resolve();
@@ -116,8 +123,7 @@ export function SourceDelegator(mocked) {
         nextMessage: function() {
             if (!deferred) {
                 deferred = {};
-                deferred.promise =
-          new Promise(resolve => deferred.resolve = resolve);
+                deferred.promise = new Promise(resolve => deferred.resolve = resolve);
             }
             return deferred.promise;
         },
@@ -148,6 +154,7 @@ var EventSource = (function() {
 
     return {
         getInstance: function(mocked) {
+
             if (!instance) {
                 instance = createInstance(mocked);
             }
@@ -157,7 +164,9 @@ var EventSource = (function() {
 })();
 
 export function connect() {
-    return EventSource.getInstance().connect();
+    let source = EventSource.getInstance();
+    source.connect();
+    return source;
 }
 
 export function* read(msgSource) {
@@ -173,7 +182,7 @@ export function* write(msgSource) {
     while (true) {
         const action = yield take('SEND_REQUEST');
         yield put(opStarted(action));
-        yield call(msgSource.emit(action.payload.message, action.payload.data));
+        yield call(msgSource.emit,action.payload.message, action.payload.data);
     }
 }
 
@@ -189,7 +198,7 @@ export function* watchOutgoing() {
 
 export default function* rootSaga() {
     yield [
-    watchIncoming(),
-      watchOutgoing(),
+        watchIncoming(),
+        watchOutgoing(),
     ];
 }

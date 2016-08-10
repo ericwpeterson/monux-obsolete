@@ -74,15 +74,15 @@ describe('monobject saga', () => {
         let eventSource = new SourceDelegator(true);
 
         let action = {
-          type: 'SEND_REQUEST',
-          payload: {
-            message: "Set",
-            data: {
-              monobject: 'mo',
-              property: 'color',
-              value: 'blue'
+            type: 'SEND_REQUEST',
+            payload: {
+                message: "Set",
+                data: {
+                    monobject: 'mo',
+                    property: 'color',
+                    value: 'blue'
+                }
             }
-          }
         };
 
         const gen = write(eventSource);

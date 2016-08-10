@@ -32,7 +32,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Get::sites',
             'value': 123,
             error: false
@@ -55,7 +55,6 @@ describe('monobject reducer', () => {
         expect(nextState.toJS()).to.deep.equal(ret);
     });
 
-
     it('sets opCompleted state = ERROR when there is an error', () => {
         const action = {
             type: 'INIT'
@@ -64,7 +63,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Get::sites',
             'value': 123,
             error: true
@@ -93,7 +92,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Get::sites',
             'value': 123,
             error: false
@@ -115,7 +114,7 @@ describe('monobject reducer', () => {
         nextState = reducer(nextState, opCompleted(payload));
 
         payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Watch::sites',
             error: false
         };
@@ -145,7 +144,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Call::walkDog',
             'value': 123,
             error: false
@@ -176,7 +175,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Get::sites',
             'value': 123,
             error: false
@@ -198,7 +197,7 @@ describe('monobject reducer', () => {
         nextState = reducer(nextState, opCompleted(payload));
 
         payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Watch::sites',
             value: 321,
             error: false
@@ -233,7 +232,7 @@ describe('monobject reducer', () => {
             payload: {
                 message: "Call",
                 data: {
-                    monobject: 'mo',
+                    monObject: 'mo',
                     method: 'walkDog'
                 }
             }
@@ -267,7 +266,7 @@ describe('monobject reducer', () => {
             payload: {
                 message: "Set",
                 data: {
-                    monobject: 'mo',
+                    monObject: 'mo',
                     property: 'color',
                     value: 'green'
                 }
@@ -298,7 +297,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Call::walkDog',
             'value': 123,
             error: false
@@ -325,7 +324,7 @@ describe('monobject reducer', () => {
             payload: {
                 message: "Call",
                 data: {
-                    monobject: 'mo',
+                    monObject: 'mo',
                     method: 'walkDog'
                 }
             }
@@ -356,7 +355,7 @@ describe('monobject reducer', () => {
         let nextState = reducer(undefined, action);
 
         let payload = {
-            monobject: 'mo',
+            monObject: 'mo',
             'op': 'Get::color',
             'value': 'green',
             error: false
@@ -383,7 +382,7 @@ describe('monobject reducer', () => {
             payload: {
                 message: "Set",
                 data: {
-                    monobject: 'mo',
+                    monObject: 'mo',
                     property: 'color',
                     'value': 'blue'
                 }

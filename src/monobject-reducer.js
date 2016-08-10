@@ -35,16 +35,16 @@ function opStarted(state, action) {
 
     if (action.payload.message === 'Call') {
 
-        currentValue = state.getIn(  [
+        currentValue = state.getIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'methods',
                             action.payload.data.method,
-                            'value'	]);
+                            'value']);
         if (currentValue) {
-            ret = state.setIn( [
+            ret = state.setIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'methods',
                             action.payload.data.method
                         ],
@@ -52,7 +52,7 @@ function opStarted(state, action) {
         } else {
             ret = state.setIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'methods',
                             action.payload.data.method
                         ],
@@ -60,17 +60,16 @@ function opStarted(state, action) {
         }
 
     } else {
-        currentValue = state.getIn( [
+        currentValue = state.getIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'props',
                             action.payload.data.property,
-                            'value'
-			            ]);
+                            'value']);
         if (currentValue) {
             ret = state.setIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'props',
                             action.payload.data.property
                         ],
@@ -78,7 +77,7 @@ function opStarted(state, action) {
         } else {
             ret = state.setIn([
                             'monobjects',
-                            action.payload.data.monobject,
+                            action.payload.data.monObject,
                             'props',
                             action.payload.data.property
                         ],
@@ -107,16 +106,16 @@ function opCompleted(state, payload) {
     let ret = state;
 
     if (payload.error) {
-        ret = state.setIn(['monobjects', payload.monobject, key, arg, 'state'], REQUEST.ERROR);
+        ret = state.setIn(['monobjects', payload.monObject, key, arg, 'state'], REQUEST.ERROR);
     } else {
         if (cmd === "Get" || cmd === 'Set' || cmd === 'Call' ||  (cmd === 'Watch' && payload.value)) {
-            ret = state.setIn(['monobjects', payload.monobject, key, arg],
+            ret = state.setIn(['monobjects', payload.monObject, key, arg],
             Map({value: payload.value, state: REQUEST.COMPLETED}));
         } else if (cmd === 'UnWatch' || cmd === 'Watch') {
             //preserve the value
-            let currentValue = state.getIn(['monobjects', payload.monobject, key, arg, 'value']);
+            let currentValue = state.getIn(['monobjects', payload.monObject, key, arg, 'value']);
 
-            ret = state.setIn(['monobjects', payload.monobject, 'props', arg],
+            ret = state.setIn(['monobjects', payload.monObject, 'props', arg],
                 Map({value: currentValue, state: REQUEST.COMPLETED}));
         }
     }

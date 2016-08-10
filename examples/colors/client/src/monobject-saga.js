@@ -56,22 +56,22 @@ var Socket = function() {
     let handler;
 
     return {
-        connect: function() {            
+        connect: function() {
             let s = io.connect();
 
-            let protocol = s.io.engine.secure?"https://":"http://";            
-            socket = io.connect( protocol + s.io.engine.hostname + ":" + PORT );
+            let protocol = s.io.engine.secure ? "https://" : "http://";
+            socket = io.connect(protocol + s.io.engine.hostname + ":" + PORT);
 
             socket.on('opCompleted', (opCompletedPacket) => {
 
-                if (this.onmessage) {                    
+                if (this.onmessage) {
                     let e = {
                         data: {
                             message: 'opCompleted',
                             payload: opCompletedPacket
                         }
                     };
-                    this.onmessage(e);                    
+                    this.onmessage(e);
                 }
             });
 
@@ -112,7 +112,7 @@ export function SourceDelegator(mocked) {
 
     let deferred;
 
-    source.onmessage = event => {        
+    source.onmessage = event => {
         if (deferred) {
             deferred.resolve(event);
             deferred = null;
@@ -127,10 +127,10 @@ export function SourceDelegator(mocked) {
             }
             return deferred.promise;
         },
-        connect: function() {            
+        connect: function() {
             return source.connect();
         },
-        emit: function(msg, data) {            
+        emit: function(msg, data) {
             return source.emit(msg,data);
         },
         source: function() {
@@ -155,7 +155,7 @@ var EventSource = (function() {
     return {
         getInstance: function(mocked) {
 
-            if (!instance) {                
+            if (!instance) {
                 instance = createInstance(mocked);
             }
             return instance;
@@ -163,9 +163,9 @@ var EventSource = (function() {
     };
 })();
 
-export function connect() {    
-    let source = EventSource.getInstance()
-    source.connect();    
+export function connect() {
+    let source = EventSource.getInstance();
+    source.connect();
     return source;
 }
 
@@ -180,8 +180,8 @@ export function* read(msgSource) {
 
 export function* write(msgSource) {
     while (true) {
-        const action = yield take('SEND_REQUEST');        
-        yield put(opStarted(action));        
+        const action = yield take('SEND_REQUEST');
+        yield put(opStarted(action));
         yield call(msgSource.emit,action.payload.message, action.payload.data);
     }
 }
@@ -191,8 +191,8 @@ export function* watchIncoming() {
     yield fork(read, eventSource);
 }
 
-export function* watchOutgoing() {    
-    const eventSource = yield call(connect);    
+export function* watchOutgoing() {
+    const eventSource = yield call(connect);
     yield fork(write, eventSource);
 }
 

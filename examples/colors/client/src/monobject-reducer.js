@@ -35,14 +35,14 @@ function opStarted(state, action) {
 
     if (action.payload.message === 'Call') {
 
-        currentValue = state.getIn(  [
+        currentValue = state.getIn([
                             'monobjects',
                             action.payload.data.monObject,
                             'methods',
                             action.payload.data.method,
-                            'value'	]);
+                            'value']);
         if (currentValue) {
-            ret = state.setIn( [
+            ret = state.setIn([
                             'monobjects',
                             action.payload.data.monObject,
                             'methods',
@@ -60,13 +60,12 @@ function opStarted(state, action) {
         }
 
     } else {
-        currentValue = state.getIn( [
+        currentValue = state.getIn([
                             'monobjects',
                             action.payload.data.monObject,
                             'props',
                             action.payload.data.property,
-                            'value'
-			            ]);
+                            'value']);
         if (currentValue) {
             ret = state.setIn([
                             'monobjects',

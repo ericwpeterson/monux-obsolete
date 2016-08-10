@@ -12,11 +12,9 @@ let monObject = createStatsObject();
 monObjectFactory.insertObject('stats', monObject);
 initFactory(monObjectFactory);
 
-
 export default function startServer() {
 
     const io = new Server().attach(8090);
-    
 
     io.on('connection', function(socket) {
         socket.on('disconnect', function() {
@@ -61,7 +59,7 @@ export default function startServer() {
                     console.log(err, res);
                 }
             });
-        });            
+        });
     });
 
 }

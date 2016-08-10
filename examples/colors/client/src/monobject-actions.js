@@ -13,7 +13,7 @@ export function opCompleted(payload) {
     };
 }
 
-export function get(monobject, property) {    
+export function get(monobject, property) {
     return {
         type: 'SEND_REQUEST',
         payload: {

@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { get, set, call, watch, unwatch } from '../src/monobject-actions.js';
 import { Button } from 'react-bootstrap';
 
-
 export default class App extends React.Component {
     
     static propTypes = {
@@ -12,8 +11,8 @@ export default class App extends React.Component {
        set: PropTypes.func.isRequired,
        set2: PropTypes.func.isRequired,
        watch: PropTypes.func.isRequired,
-       unWatch: PropTypes.func.isRequired,       
-       state: PropTypes.object.isRequired       
+       unWatch: PropTypes.func.isRequired,
+       state: PropTypes.object.isRequired
     };
     
     render() {
@@ -32,27 +31,27 @@ export default class App extends React.Component {
 
         try {
             if ( this.props.state.monobjects.stats.props.color.value ) {
-                style.backgroundColor = this.props.state.monobjects.stats.props.color.value;                
-            }            
+                style.backgroundColor = this.props.state.monobjects.stats.props.color.value;
+            }
         } catch(e) {}
 
         return (
-            <div style={style}>                
-                <div style={{margin:'auto', width: 100}}>                
-                    <Button onClick={this.props.get}> Get Color </Button>                    
+            <div style={style}>
+                <div style={buttonDivStyle}>
+                    <Button onClick={this.props.get}> Get Color </Button>
                 </div>
 
-                <div style={buttonDivStyle}>                
-                    <Button onClick={this.props.set}> Set Color = blue </Button>                    
+                <div style={buttonDivStyle}>
+                    <Button onClick={this.props.set}> Set Color = blue </Button>
                 </div>
-                <div style={buttonDivStyle}>                
-                    <Button onClick={this.props.set2}> Set Color = green </Button>                    
+                <div style={buttonDivStyle}>
+                    <Button onClick={this.props.set2}> Set Color = green </Button>
                 </div>
-                <div style={buttonDivStyle}>                
-                    <Button onClick={this.props.watch}> Watch color </Button>                    
+                <div style={buttonDivStyle}>
+                    <Button onClick={this.props.watch}> Watch color </Button>
                 </div>
-                <div style={buttonDivStyle}>                
-                    <Button onClick={this.props.unWatch}> Un-Watch color </Button>                    
+                <div style={buttonDivStyle}>
+                    <Button onClick={this.props.unWatch}> Un-Watch color </Button>
                 </div>
                 
             </div>

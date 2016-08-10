@@ -6,7 +6,7 @@ import { createConnection } from '../monobjects/connections/connection.js';
 
 var StatsMonObject = function() {
 
-    let monObject = createMonObject();    
+    let monObject = createMonObject();
 
     monObject.parent(this);
     monObject.addProps({name: 'stats', fontSize: 12, color: 'red'});

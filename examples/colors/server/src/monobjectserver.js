@@ -71,7 +71,7 @@ let monObjectServer = {
 
     get: (request, socket, cb) => {
         if (validRequest(factory,'get', request)) {
-            factory.getMonObject(request.monObject).get(request.property, (err, result) => {                
+            factory.getMonObject(request.monObject).get(request.property, (err, result) => {
                 socket.emit("opCompleted", {'op': "Get::" + request.property, 'monObject': request.monObject, "value": result, 'error': err});
                 cb(err, result);
             }, getUser(socket));

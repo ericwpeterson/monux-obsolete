@@ -15,5 +15,5 @@ For a nice demo open 2 browsers to http://host:8080
 
 ## Screenshot
 
-![](https://github.com/ericwpeterson/monux/edit/master/examples/colors/demo.gif)
+![](https://github.com/ericwpeterson/monux/examples/colors/demo.gif)
 

@@ -6,7 +6,7 @@
 Marrying Redux and [MonObjects](https://github.com/ericwpeterson/monobjects) to provide a structured state shape and maximize code reuse. 
 
 ## Examples 
-Coming Soon
+* [Colors](https://github.com/ericwpeterson/monux/tree/master/examples/colors)
 
 ## Installation
 

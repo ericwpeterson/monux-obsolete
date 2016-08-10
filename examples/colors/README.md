@@ -1,7 +1,7 @@
 
 # Colors
 
-This is the a client server app. Open two terminals and run npm install in the client and server
+This is a client/server app. Open two terminals and run npm install in the client and server
 directories.
 
 To run the server app run npm start from the server directory, this will create a socket io server on port 8090. 

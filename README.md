@@ -7,6 +7,7 @@ Marrying Redux and [MonObjects](https://github.com/ericwpeterson/monobjects) to 
 
 ## Examples 
 * [Colors](https://github.com/ericwpeterson/monux/tree/master/examples/colors)
+* [react-d3-grouped-boxplots] (https://github.com/ericwpeterson/monux/tree/master/examples/react-d3-boxplot)
 
 ## Installation
 

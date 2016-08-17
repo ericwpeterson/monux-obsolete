@@ -12,32 +12,19 @@ let boxPlotContainerStyle = {margin: 'auto', width: 800, height: 200, borderStyl
 
 let getItems = R.curry((dataPoint, item) => item[dataPoint])
 
-let pickMonthFieldsForChart = (key,obj)  => {
-    let tokens = key.split('-')
-    return [ tokens[0] + '-' + tokens[1], [obj.min, obj.q1, obj.median, obj.q3, obj.max, ...obj.outliers] ];
-}
-let pickWeekFieldsForChart = (key,obj)  => [ key, [obj.min, obj.q1, obj.median, obj.q3, obj.max, ...obj.outliers] ];
+
+let pickFieldsForChart = (key,obj)  => [ key, [obj.min, obj.q1, obj.median, obj.q3, obj.max, ...obj.outliers] ];
 
 export class LineGraph extends React.Component {
     constructor() {
         super();
-        this.state = {
-            collapsed: false
-        }
     }
-
-    _collapse(c) {
-        this.setState({collapsed: c})
-    }
-
     render() {
         let child;
 
         if ( !this.state.collapsed ) {
             child =
-                <div style={lineGraphContainerStyle}> imagine a line graph
-                    <Button onClick={this._collapse.bind(this, true) }> Collapse </Button>
-                    <Button onClick={this._collapse.bind(this, false) }> Expand  </Button>
+                <div style={lineGraphContainerStyle}> imagine a line graph here
                 </div>
         }
         return (
@@ -54,10 +41,6 @@ export class BoxPlot extends React.Component {
         renderChart(this.props.title, this.props.id, this.props.data, this.props.min, this.props.max, this.props.clickHandler);
     }
 
-    shouldComponentUpdate(props) {
-        return false;
-    }
-
     render() {
         return (
             <div>
@@ -71,37 +54,22 @@ export class Days extends React.Component {
     constructor() {
         super();
         this.clickHandler = this.clickHandler.bind(this);
-        this.state = {
-            collapsed: true
-        }
-    }
-
-    _collapse(c) {
-        this.setState({collapsed: c})
     }
 
     clickHandler(d) {
-        console.log( 'Day click handler called d =', d)
-        this.setState({collapsed: false});
     }
 
     render() {
-        let data = [ ['Sun',[1,10,20,28,30,35,40,50]], ['Mon',[1,10,20,28,30,35,40,50]], ['Tues',[1,10,20,28,30,35,40,50]], ['Wed',[1,10,20,28,30,35,40,50]], ['Thurs',[1,10,20,28,30,35,40,50]], ['Fri',[1,10,20,28,30,35,40,50]], ['Sat',[1,10,20,28,30,35,40,50]] ];
-        let min = 1,
-            max = 50;
-
-        let child;
-
-        if ( !this.state.collapsed ) {
-            child = <LineGraph  />
-        }
+        //TODO: This is where we would create a line graph child
+        //let child;
+        //if ( !this.state.collapsed ) {
+        //    child = <LineGraph  />
+        //}
 
         return (
             <div style={divStyle}>
-                <BoxPlot id='days' title='Days' data={data} min={min} max={max} clickHandler={this.clickHandler} />
-                {child}
+                <BoxPlot id='days' title='Days' data={this.props.data} min={this.props.min} max={this.props.max} clickHandler={this.clickHandler} />
             </div>
-
         )
     }
 };
@@ -112,24 +80,36 @@ export class Weeks extends React.Component {
         super();
         this.clickHandler = this.clickHandler.bind(this);
         this.state = {
-            collapsed: true
+            currentWeek: null,
+            unMountChild: false
         }
     }
 
     clickHandler(d) {
-        console.log( 'Week click handler called d =', d)
-        this.setState({collapsed: false});
-    }
-
-    _collapse(c) {
-        this.setState({collapsed: c})
+        this.setState({ currentWeek: d[0], unMountChild: true }, function() { this.setState( { unMountChild: false  })} );
     }
 
     render() {
         let child;
 
-        if ( !this.state.collapsed ) {
-            child = <Days/>
+        if ( !( this.state.collapsed  || this.state.unMountChild  )) {
+            try {
+                let items = R.map( getItems(this.props.dataPoint), this.props.stats[this.props.month].children[this.state.currentWeek].children );
+
+                if( R.keys(items) !== 0 ) {
+                    let data = [];
+                    let keys = R.filter( key => key!=='range',  R.keys(items));
+                    R.forEach(  key => {
+                        data.push( pickFieldsForChart(key, items[key]))
+                    }, keys);
+
+                    let week = this.props.stats[this.props.month].children[this.state.currentWeek];
+                    let min = week.range[this.props.dataPoint].min;
+                    let max = week.range[this.props.dataPoint].max;
+
+                    child = <Days data={data} min={min} max={max} month={this.props.month} currentWeek={this.state.currentWeek} dataPoint={this.props.dataPoint} stats={this.props.stats} />;
+                }
+            } catch (e) {}
         }
 
         return (
@@ -141,34 +121,23 @@ export class Weeks extends React.Component {
     }
 };
 
-export default class App extends React.Component {
+export class Month extends React.Component {
     constructor() {
         super();
         this.clickHandler = this.clickHandler.bind(this);
         this.state = {
-            collapsed: true,
-            currentDataPoint: 'temperatureF'
+            currentDataPoint: 'temperatureF',
+            currentMonth: '2016-07-01',
+            unMountChild: true
         }
     }
 
-    static propTypes = {
-       getStats: PropTypes.func.isRequired
-    };
-
     clickHandler(d) {
-        this.setState({collapsed: false, currentMonth:  d[0] });
-    }
-
-    _collapse(c) {
-        this.setState({collapsed: c})
-    }
-
-    componentDidMount() {
-        this.props.getStats();
+        this.setState({collapsed: false, currentMonth:  d[0], unMountChild: true }, function() { this.setState( { unMountChild: false  })} );
     }
 
     dataPointSelector(dp) {
-        this.setState({currentDataPoint: dp, forceUnMount: true}, function() { this.setState({forceUnMount: false} )} )
+        this.setState({currentDataPoint: dp, unMountChild: true}, function() { this.setState({unMountChild: false} )} )
     }
 
     render() {
@@ -176,38 +145,42 @@ export default class App extends React.Component {
         let boxplot;
 
         try {
-            if ( this.props.state.monobjects.stats.props.stats.value && !this.state.forceUnMount) {
-                let items = R.map( getItems(this.state.currentDataPoint), this.props.state.monobjects.stats.props.stats.value );
-                let data = [];
-                let keys = R.filter( key => key!=='range',  R.keys(items));
-                R.forEach(  key => {
-                    data.push( pickMonthFieldsForChart(key, items[key]))
-                }, keys);
-
-                let min = this.props.state.monobjects.stats.props.stats.value.range[this.state.currentDataPoint].min;
-                let max = this.props.state.monobjects.stats.props.stats.value.range[this.state.currentDataPoint].max;
-                boxplot = <BoxPlot id='months' title='Months' data={data} min={min} max={max} clickHandler={this.clickHandler} />
-            }
-
-        } catch (e) {
-            //console.log(e);
-        }
-
-        let child;
-
-        if ( !this.state.collapsed ) {
-            let items = R.map( getItems(this.state.currentDataPoint), this.props.state.monobjects.stats.props.stats.value['2016-07-01'].children );
+            let items = R.map( getItems(this.state.currentDataPoint), this.props.stats );
             let data = [];
             let keys = R.filter( key => key!=='range',  R.keys(items));
             R.forEach(  key => {
-                data.push( pickWeekFieldsForChart(key, items[key]))
+                data.push( pickFieldsForChart(key, items[key]))
             }, keys);
 
-            let month = this.props.state.monobjects.stats.props.stats.value['2016-07-01'];
-            let min = month.range[this.state.currentDataPoint].min;
-            let max = month.range[this.state.currentDataPoint].max;
+            let min = this.props.stats.range[this.state.currentDataPoint].min;
+            let max = this.props.stats.range[this.state.currentDataPoint].max;
 
-            child = <Weeks data={data} min={min} max={max} collapsed={this.state.collapsed} month={this.state.currentMonth} dataPoint={this.state.currentDataPoint} stats={this.props.state.monobjects.stats.props.stats.value} />;
+            boxplot = <BoxPlot id='months' title='Months' data={data} min={min} max={max} clickHandler={this.clickHandler} />
+        } catch (e) { console.log(e) }
+
+
+        //the second half takes care of rendering the child box item
+        let child;
+
+        if (!this.state.unMountChild ) {
+            try {
+                let items = R.map( getItems(this.state.currentDataPoint), this.props.stats[this.state.currentMonth].children );
+                let data = [];
+
+                let keys = R.filter( key => key!=='range',  R.keys(items));
+
+                R.forEach(  key => {
+                    data.push( pickFieldsForChart(key, items[key]))
+                }, keys);
+
+                let month = this.props.stats[this.state.currentMonth];
+
+                let min = month.range[this.state.currentDataPoint].min;
+                let max = month.range[this.state.currentDataPoint].max;
+
+                child = <Weeks unMount={this.state.unMountChild}  data={data} min={min} max={max} month={this.state.currentMonth} dataPoint={this.state.currentDataPoint} stats={this.props.stats} />;
+
+            } catch(e) {console.log(e)}
         }
 
         return (
@@ -224,7 +197,38 @@ export default class App extends React.Component {
             </div>
         )
     }
-};
+}
+
+
+export default class App extends React.Component {
+    static propTypes = {
+       getStats: PropTypes.func.isRequired
+    };
+
+    componentDidMount() {
+        this.props.getStats();
+    }
+
+    render() {
+
+        let month;
+
+
+        try {
+            if ( this.props.state.monobjects.stats.props.stats.value ) {
+               month = <Month stats={this.props.state.monobjects.stats.props.stats.value} />
+            }
+        } catch(e) {}
+
+
+        return (
+            <div>
+                {month}
+            </div>
+        )
+    }
+}
+
 
 function mapState(state) {
     let ret = state;
@@ -236,6 +240,7 @@ function mapState(state) {
 
     return ret;
 }
+
 
 function mapStateToProps(state) {
     return {

@@ -2,7 +2,9 @@
 # React-d3-boxplot
 
 Builds on colors example. It adds a higher order reducer to intercept stat values and to format the value to a value we can use for the box plots ( see below ). The reducer groups the item hierarchically so outer most objects are months and they contain weeks that contains days.  It also computes the range for all the datapoints within each group. 
+## Screenshot
 
+![](boxplot.png)
 ```` javascript
 dataIn =
 {

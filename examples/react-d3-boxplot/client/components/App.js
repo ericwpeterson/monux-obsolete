@@ -7,16 +7,28 @@ import {renderChart } from '../src/box-and-whiskers.js';
 import R, {map} from 'ramda';
 
 let divStyle = {}
-let lineGraphContainerStyle = {margin: 'auto', width: 800, height: 200, borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2 };
-let boxPlotContainerStyle = {margin: 'auto', width: 800, height: 200, borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2 };
+let lineGraphContainerStyle = {
+    margin: 'auto', width: 800, height: 200, borderStyle: 'solid',
+    borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2
+};
+
+let boxPlotContainerStyle = {margin: 'auto', width: 800, height: 200,
+    borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2
+};
+
 let buttonDivStyle = {margin: 'auto', width: 200};
 
 let getItems = R.curry((dataPoint, item) => item[dataPoint])
-let pickFields = R.curry((obj, key)  => [ key, [ obj[key].min, obj[key].q1, obj[key].median, obj[key].q3, obj[key].max, ...obj[key].outliers]])
+let pickFields = R.curry((obj, key)  => [ key,
+                                            [ obj[key].min, obj[key].q1, obj[key].median,
+                                                obj[key].q3, obj[key].max,
+                                                ...obj[key].outliers
+                                            ]
+                                        ])
+                                        
 let iterateObjectKeys = (obj) => R.map(pickFields(obj), R.keys(obj))
 let filterFn = obj =>  obj.max && obj.min && obj.median && obj.q1 && obj.q3 && obj.outliers
 let getChartData = (dataPoint) => R.compose( iterateObjectKeys, R.filter(filterFn), R.map( getItems(dataPoint)));
-let pickFieldsForChart = (key,obj)  => [ key, [obj.min, obj.q1, obj.median, obj.q3, obj.max, ...obj.outliers] ];
 
 export class LineGraph extends React.Component {
     constructor() {
@@ -66,7 +78,9 @@ export class Days extends React.Component {
         //TODO: This is where we would create a line graph child
         return (
             <div style={divStyle}>
-                <BoxPlot id='days' title='Days' data={this.props.data} min={this.props.min} max={this.props.max} clickHandler={this.clickHandler} />
+                <BoxPlot id='days' title='Days' data={this.props.data} min={this.props.min} max={this.props.max}
+                    clickHandler={this.clickHandler}
+                />
             </div>
         )
     }
@@ -107,7 +121,9 @@ export class Weeks extends React.Component {
 
         return (
             <div style={divStyle}>
-                <BoxPlot id='weeks' title='Weeks' data={this.props.data} min={this.props.min} max={this.props.max} clickHandler={this.clickHandler} />
+                <BoxPlot id='weeks' title='Weeks' data={this.props.data} min={this.props.min}
+                    max={this.props.max} clickHandler={this.clickHandler}
+                 />
                 {child}
             </div>
         )
@@ -126,7 +142,8 @@ export class Month extends React.Component {
     }
 
     clickHandler(d) {
-        this.setState({collapsed: false, currentMonth:  d[0], unMountChild: true }, function() { this.setState( { unMountChild: false})} );
+        this.setState( {collapsed: false, currentMonth:  d[0], unMountChild: true },
+            ()=> { this.setState( { unMountChild: false})} );
     }
 
     render() {
@@ -137,7 +154,8 @@ export class Month extends React.Component {
         let data = getChartData(this.props.dataPoint)(this.props.stats);
 
         boxplot = <BoxPlot id='months' title='Months'
-                    data={data} min={this.props.stats.range[this.props.dataPoint].min} max={this.props.stats.range[this.props.dataPoint].max}
+                    data={data} min={this.props.stats.range[this.props.dataPoint].min}
+                    max={this.props.stats.range[this.props.dataPoint].max}
                     clickHandler={this.clickHandler}
                     />
 
@@ -191,7 +209,6 @@ export default class App extends React.Component {
         this.setState({currentDataPoint: dp, unMountChild: true}, function() { this.setState({unMountChild: false} )} )
     }
 
-
     render() {
         let month;
 
@@ -207,9 +224,15 @@ export default class App extends React.Component {
         return (
             <div>
                 <div style={buttonDivStyle}>
-                    <Button active={this.state.currentDataPoint==='temperatureF'?true:false} onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp. </Button>
-                    <Button onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH  </Button>
-                    <Button onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02  </Button>
+                    <Button active={this.state.currentDataPoint==='temperatureF'?true:false}
+                        onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp.
+                    </Button>
+                    <Button active={this.state.currentDataPoint==='relativeHumidity'?true:false}
+                        onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH
+                    </Button>
+                    <Button active={this.state.currentDataPoint==='cO2Level'?true:false}
+                        onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02
+                    </Button>
                 </div>
                 {month}
             </div>

@@ -25,7 +25,7 @@ let pickFields = R.curry((obj, key)  => [ key,
                                                 ...obj[key].outliers
                                             ]
                                         ])
-                                        
+
 let iterateObjectKeys = (obj) => R.map(pickFields(obj), R.keys(obj))
 let filterFn = obj =>  obj.max && obj.min && obj.median && obj.q1 && obj.q3 && obj.outliers
 let getChartData = (dataPoint) => R.compose( iterateObjectKeys, R.filter(filterFn), R.map( getItems(dataPoint)));
@@ -136,8 +136,7 @@ export class Month extends React.Component {
         this.clickHandler = this.clickHandler.bind(this);
         this.state = {
             currentMonth: null,
-            unMountChild: false,
-            unMountSelf: false
+            unMountChild: false
         }
     }
 
@@ -166,8 +165,7 @@ export class Month extends React.Component {
                 let data = getChartData(this.props.dataPoint)(this.props.stats[this.state.currentMonth].children);
                 let month = this.props.stats[this.state.currentMonth];
 
-                child = <Weeks unMount={this.state.unMountChild}
-                            data={data} min={month.range[this.props.dataPoint].min}
+                child = <Weeks data={data} min={month.range[this.props.dataPoint].min}
                             max={month.range[this.props.dataPoint].max} month={this.state.currentMonth}
                             dataPoint={this.props.dataPoint}
                             stats={this.props.stats[this.state.currentMonth].children}

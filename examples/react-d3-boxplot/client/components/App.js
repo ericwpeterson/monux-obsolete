@@ -9,10 +9,13 @@ import R, {map} from 'ramda';
 let divStyle = {}
 let lineGraphContainerStyle = {margin: 'auto', width: 800, height: 200, borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2 };
 let boxPlotContainerStyle = {margin: 'auto', width: 800, height: 200, borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2 };
+let buttonDivStyle = {margin: 'auto', width: 200};
 
 let getItems = R.curry((dataPoint, item) => item[dataPoint])
-
-
+let pickFields = R.curry((obj, key)  => [ key, [ obj[key].min, obj[key].q1, obj[key].median, obj[key].q3, obj[key].max, ...obj[key].outliers]])
+let iterateObjectKeys = (obj) => R.map(pickFields(obj), R.keys(obj))
+let filterFn = obj =>  obj.max && obj.min && obj.median && obj.q1 && obj.q3 && obj.outliers
+let getChartData = (dataPoint) => R.compose( iterateObjectKeys, R.filter(filterFn), R.map( getItems(dataPoint)));
 let pickFieldsForChart = (key,obj)  => [ key, [obj.min, obj.q1, obj.median, obj.q3, obj.max, ...obj.outliers] ];
 
 export class LineGraph extends React.Component {
@@ -61,11 +64,6 @@ export class Days extends React.Component {
 
     render() {
         //TODO: This is where we would create a line graph child
-        //let child;
-        //if ( !this.state.collapsed ) {
-        //    child = <LineGraph  />
-        //}
-
         return (
             <div style={divStyle}>
                 <BoxPlot id='days' title='Days' data={this.props.data} min={this.props.min} max={this.props.max} clickHandler={this.clickHandler} />
@@ -92,23 +90,18 @@ export class Weeks extends React.Component {
     render() {
         let child;
 
-        if ( !( this.state.collapsed  || this.state.unMountChild  )) {
+        if ( !this.state.unMountChild  && this.state.currentWeek) {
             try {
-                let items = R.map( getItems(this.props.dataPoint), this.props.stats[this.props.month].children[this.state.currentWeek].children );
+                let data = getChartData(this.props.dataPoint)(this.props.stats[this.state.currentWeek].children);
+                let week = this.props.stats[this.state.currentWeek];
 
-                if( R.keys(items) !== 0 ) {
-                    let data = [];
-                    let keys = R.filter( key => key!=='range',  R.keys(items));
-                    R.forEach(  key => {
-                        data.push( pickFieldsForChart(key, items[key]))
-                    }, keys);
+                child = <Days data={data} min={week.range[this.props.dataPoint].min}
+                            max={week.range[this.props.dataPoint].max} month={this.props.month}
+                            currentWeek={this.state.currentWeek}
+                            dataPoint={this.props.dataPoint}
+                            stats={this.props.stats}
+                        />;
 
-                    let week = this.props.stats[this.props.month].children[this.state.currentWeek];
-                    let min = week.range[this.props.dataPoint].min;
-                    let max = week.range[this.props.dataPoint].max;
-
-                    child = <Days data={data} min={min} max={max} month={this.props.month} currentWeek={this.state.currentWeek} dataPoint={this.props.dataPoint} stats={this.props.stats} />;
-                }
             } catch (e) {}
         }
 
@@ -126,70 +119,47 @@ export class Month extends React.Component {
         super();
         this.clickHandler = this.clickHandler.bind(this);
         this.state = {
-            currentDataPoint: 'temperatureF',
-            currentMonth: '2016-07-01',
-            unMountChild: true
+            currentMonth: null,
+            unMountChild: false,
+            unMountSelf: false
         }
     }
 
     clickHandler(d) {
-        this.setState({collapsed: false, currentMonth:  d[0], unMountChild: true }, function() { this.setState( { unMountChild: false  })} );
-    }
-
-    dataPointSelector(dp) {
-        this.setState({currentDataPoint: dp, unMountChild: true}, function() { this.setState({unMountChild: false} )} )
+        this.setState({collapsed: false, currentMonth:  d[0], unMountChild: true }, function() { this.setState( { unMountChild: false})} );
     }
 
     render() {
-        let buttonDivStyle = {margin: 'auto', width: 200};
         let boxplot;
-
-        try {
-            let items = R.map( getItems(this.state.currentDataPoint), this.props.stats );
-            let data = [];
-            let keys = R.filter( key => key!=='range',  R.keys(items));
-            R.forEach(  key => {
-                data.push( pickFieldsForChart(key, items[key]))
-            }, keys);
-
-            let min = this.props.stats.range[this.state.currentDataPoint].min;
-            let max = this.props.stats.range[this.state.currentDataPoint].max;
-
-            boxplot = <BoxPlot id='months' title='Months' data={data} min={min} max={max} clickHandler={this.clickHandler} />
-        } catch (e) { console.log(e) }
-
-
-        //the second half takes care of rendering the child box item
         let child;
 
-        if (!this.state.unMountChild ) {
+
+        let data = getChartData(this.props.dataPoint)(this.props.stats);
+
+        boxplot = <BoxPlot id='months' title='Months'
+                    data={data} min={this.props.stats.range[this.props.dataPoint].min} max={this.props.stats.range[this.props.dataPoint].max}
+                    clickHandler={this.clickHandler}
+                    />
+
+        //the second half takes care of rendering the child box item
+        if (!( this.state.unMountChild || !this.state.currentMonth )) {
             try {
-                let items = R.map( getItems(this.state.currentDataPoint), this.props.stats[this.state.currentMonth].children );
-                let data = [];
 
-                let keys = R.filter( key => key!=='range',  R.keys(items));
-
-                R.forEach(  key => {
-                    data.push( pickFieldsForChart(key, items[key]))
-                }, keys);
-
+                let data = getChartData(this.props.dataPoint)(this.props.stats[this.state.currentMonth].children);
                 let month = this.props.stats[this.state.currentMonth];
 
-                let min = month.range[this.state.currentDataPoint].min;
-                let max = month.range[this.state.currentDataPoint].max;
-
-                child = <Weeks unMount={this.state.unMountChild}  data={data} min={min} max={max} month={this.state.currentMonth} dataPoint={this.state.currentDataPoint} stats={this.props.stats} />;
+                child = <Weeks unMount={this.state.unMountChild}
+                            data={data} min={month.range[this.props.dataPoint].min}
+                            max={month.range[this.props.dataPoint].max} month={this.state.currentMonth}
+                            dataPoint={this.props.dataPoint}
+                            stats={this.props.stats[this.state.currentMonth].children}
+                        />;
 
             } catch(e) {console.log(e)}
         }
 
         return (
             <div>
-                <div style={buttonDivStyle}>
-                    <Button active={this.state.currentDataPoint==='temperatureF'?true:false} onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp. </Button>
-                    <Button onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH  </Button>
-                    <Button onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02  </Button>
-                </div>
                 <div style={divStyle}>
                     {boxplot}
                     {child}
@@ -199,36 +169,53 @@ export class Month extends React.Component {
     }
 }
 
-
 export default class App extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            currentDataPoint: 'temperatureF',
+            unMountChild: false
+        }
+    }
+
     static propTypes = {
        getStats: PropTypes.func.isRequired
     };
+
 
     componentDidMount() {
         this.props.getStats();
     }
 
+    dataPointSelector(dp) {
+        this.setState({currentDataPoint: dp, unMountChild: true}, function() { this.setState({unMountChild: false} )} )
+    }
+
+
     render() {
-
         let month;
-
 
         try {
             if ( this.props.state.monobjects.stats.props.stats.value ) {
-               month = <Month stats={this.props.state.monobjects.stats.props.stats.value} />
+               if ( !this.state.unMountChild ) {
+                month = <Month stats={this.props.state.monobjects.stats.props.stats.value} dataPoint={this.state.currentDataPoint} />
+               }
+
             }
         } catch(e) {}
 
-
         return (
             <div>
+                <div style={buttonDivStyle}>
+                    <Button active={this.state.currentDataPoint==='temperatureF'?true:false} onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp. </Button>
+                    <Button onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH  </Button>
+                    <Button onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02  </Button>
+                </div>
                 {month}
             </div>
         )
     }
 }
-
 
 function mapState(state) {
     let ret = state;

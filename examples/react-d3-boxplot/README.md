@@ -1,7 +1,7 @@
 
 # React-d3-boxplot
 
-This example builds off colors example. It adds a higher order reducer to intercept stat values to format the value to create drillinable boxplots ( see format below ). Basically, the reducer groups the item hierarchically so the outer most objects are months and they contain weeks that contains days.  It also computes the range for all the datapoints within each group. Clicking on the each boxplot item drills down into the set of box plots.
+This example builds off colors example. It adds a higher order reducer to intercept stat values to format the value to create layered boxplots ( see format below ). Basically, the reducer groups the items hierarchically so the outer most objects are months which contain weeks which contains days.  It also computes the range for all the datapoints within each group. Clicking on the each boxplot item drills down into the set of box plots.
 
 ## Screenshot
 
@@ -493,7 +493,7 @@ dataOut =
 
 ## Instructions
 
-This is the a client server app. Open two terminals and run npm install in the client and server
+This is a client server app. Open two terminals and run npm install in the client and server
 directories.
 
 To run the server app run npm start from the server directory, this will create a socket io server on port 8090 used for state notifications to the client

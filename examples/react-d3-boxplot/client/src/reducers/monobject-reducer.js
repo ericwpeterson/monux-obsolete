@@ -11,14 +11,18 @@ export const REQUEST = {
 const DEFAULT_STATE = Map({});
 
 export default function monobjectReducer(state = DEFAULT_STATE, action) {
+  let ret;
 
     switch (action.type) {
 
         case 'OP_COMPLETED':
-            return opCompleted(state, action.payload);
+            ret = opCompleted(state, action.payload);
+            return ret;
 
         case 'OP_STARTED':
-            return opStarted(state, action.payload);
+
+            ret = opStarted(state, action.payload);
+            return ret;
 
         case 'INIT':
             return DEFAULT_STATE;
@@ -90,7 +94,6 @@ function opStarted(state, action) {
 }
 
 function opCompleted(state, payload) {
-
     let tokens = payload.op.split('::');
     let cmd = tokens[0];
     let arg = tokens[1]; //may be a property or method name
@@ -111,7 +114,7 @@ function opCompleted(state, payload) {
     } else {
         if (cmd === "Get" || cmd === 'Set' || cmd === 'Call' ||  (cmd === 'Watch' && payload.value)) {
             ret = state.setIn(['monobjects', payload.monObject, key, arg],
-            Map({value: payload.value, state: REQUEST.COMPLETED}));
+              Map({value: payload.value, state: REQUEST.COMPLETED}));            
         } else if (cmd === 'UnWatch' || cmd === 'Watch') {
             //preserve the value
             let currentValue = state.getIn(['monobjects', payload.monObject, key, arg, 'value']);

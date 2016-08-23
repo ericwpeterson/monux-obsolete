@@ -103,7 +103,7 @@ export default function(wrapped) {
 
         switch (action.type) {
 
-            case 'OP_COMPLETED':
+            case 'OP_COMPLETED':            
                 let reduced = reduce(state, action);
                 if (reduced) {
                     return wrapped(state, reduced);

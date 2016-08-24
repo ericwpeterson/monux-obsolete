@@ -1,8 +1,9 @@
 
 import io from 'socket.io-client';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
-import { opStarted, opCompleted } from './monobject-actions';
+import { opStarted, opCompleted } from './ducks/monobject';
 
+//only needed for dev mode ( when running webpack-dev-server)
 const PORT = 8090;
 
 ///////////////////////////////////////////////////////////////////
@@ -59,6 +60,7 @@ var Socket = function() {
         connect: function() {
             let s = io.connect();
 
+            //TODO: only do this in dev mode
             let protocol = s.io.engine.secure ? "https://" : "http://";
             socket = io.connect(protocol + s.io.engine.hostname + ":" + PORT);
 

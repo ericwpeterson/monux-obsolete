@@ -388,4 +388,3 @@ export function renderChart(title, containerName, data, min, max, clickHandler) 
         .style("font-size", "16px")
         .text("");
 }
-

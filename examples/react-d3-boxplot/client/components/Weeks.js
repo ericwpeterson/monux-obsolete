@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
 import Days from './Days';
 import { weekChange, unmountDays } from  '../src/ducks/week.js'
-import toD3BoxPlot from '../src/to-d3-boxplot'
+import toD3BoxPlot, {toD3BoxPlotMinMax} from '../src/to-d3-boxplot'
 
 export class Weeks extends React.Component {
     constructor() {
@@ -17,6 +17,7 @@ export class Weeks extends React.Component {
        weekChange: PropTypes.func.isRequired
     };
 
+    //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
       try {
         if ( this.props.weekState.unmountDays === true  ) {
@@ -35,10 +36,10 @@ export class Weeks extends React.Component {
         if ( this.props.weekState.currentWeek   &&  !this.props.weekState.unmountDays  ) {
             try {
                 let data = toD3BoxPlot(this.props.dataPoint)(this.props.stats[this.props.weekState.currentWeek].children);
-                let week = this.props.stats[this.props.weekState.currentWeek];
+                let plotMinMax = toD3BoxPlotMinMax(data);
 
-                child = <Days data={data} min={week.range[this.props.dataPoint].min}
-                            max={week.range[this.props.dataPoint].max} month={this.props.month}
+                child = <Days data={data} min={plotMinMax.min}
+                            max={plotMinMax.max} month={this.props.month}
                             currentWeek={this.props.weekState.currentWeek}
                             dataPoint={this.props.dataPoint}
                             stats={this.props.stats}

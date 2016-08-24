@@ -30,12 +30,13 @@ export default class App extends React.Component {
         this.props.dataPointChange(dp);
     }
 
+    //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
-      try {
-        if ( this.props.appState.unmountMonth === true  ) {
-          this.props.unmountMonth(false);
-        }
-      } catch(e) {}
+        try {
+            if ( this.props.appState.unmountMonth === true  ) {
+                this.props.unmountMonth(false);
+            }
+        } catch(e) {}
     }
 
     render() {

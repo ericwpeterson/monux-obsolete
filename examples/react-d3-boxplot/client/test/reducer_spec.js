@@ -3,27 +3,22 @@ import {List, Map} from 'immutable';
 import {expect} from 'chai';
 import reducer from '../src/ducks/index';
 import {stats, hydratedStats} from './test_data';
-import R, {map} from 'ramda';
+import {opCompleted} from '../src/ducks/monobject';
 
 describe('reducer', () => {
+    it('hydrates the stats monobject', () => {
 
-    it('hydrates the state shape', () => {
+        let nextState = reducer(undefined, {type: ''});
 
-        let action = {
-            type: 'INIT'
+        let payload = {
+            monObject: 'stats',
+            op: 'Get::stats',
+            value: stats
         };
 
-        let nextState = reducer(undefined, '');
-
-        action = {
-            type: 'HYDRATE_STATS',
-            stats: stats
-        };
+        let action = opCompleted(payload);
 
         nextState = reducer(nextState, action);
-
-        //console.log( 'next state = ', JSON.stringify(nextState, null, 4));
-
         expect(nextState.monobjects.toJS()).to.deep.equal(hydratedStats);
     });
 });

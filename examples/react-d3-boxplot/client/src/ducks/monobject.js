@@ -1,12 +1,16 @@
 import {Map, List } from 'immutable';
 import Immutable from 'immutable';
-import _ from 'underscore';
 
 export const REQUEST = {
     IN_PROGRESS: 'IN_PROGRESS',
     COMPLETED: 'COMPLETED',
     ERROR: 'ERROR'
 };
+
+// Actions
+const OP_COMPLETED  = 'monobject/OP_COMPLETED';
+const OP_STARTED    = 'monobject/OP_STARTED';
+const SEND_REQUEST  = 'monobject/SEND_REQUEST';
 
 const DEFAULT_STATE = Map({});
 
@@ -15,16 +19,13 @@ export default function monobjectReducer(state = DEFAULT_STATE, action) {
 
     switch (action.type) {
 
-        case 'OP_COMPLETED':
+        case OP_COMPLETED:
             ret = _opCompleted(state, action.payload);
             return ret;
 
-        case 'OP_STARTED':
+        case OP_STARTED:
             ret = _opStarted(state, action.payload);
             return ret;
-
-        case 'INIT':
-            return DEFAULT_STATE;
 
         default:
             return state;
@@ -130,21 +131,21 @@ function _opCompleted(state, payload) {
 
 export function opStarted(action) {
     return {
-        type: 'OP_STARTED',
+        type: OP_STARTED,
         payload: action
     };
 }
 
 export function opCompleted(payload) {
     return {
-        type: 'OP_COMPLETED',
+        type: OP_COMPLETED,
         payload: payload
     };
 }
 
 export function get(monobject, property) {
     return {
-        type: 'SEND_REQUEST',
+        type: SEND_REQUEST,
         payload: {
             message: "Get",
             data: {
@@ -157,7 +158,7 @@ export function get(monobject, property) {
 
 export function set(monobject, property, value) {
     return {
-        type: 'SEND_REQUEST',
+        type: SEND_REQUEST,
         payload: {
             message: "Set",
             data: {
@@ -171,7 +172,7 @@ export function set(monobject, property, value) {
 
 export function call(monobject, method, args) {
     return {
-        type: 'SEND_REQUEST',
+        type: SEND_REQUEST,
         payload: {
             message: "Call",
             data: {
@@ -185,7 +186,7 @@ export function call(monobject, method, args) {
 
 export function watch(monobject, property) {
     return {
-        type: 'SEND_REQUEST',
+        type: SEND_REQUEST,
         payload: {
             message: "Watch",
             data: {
@@ -198,7 +199,7 @@ export function watch(monobject, property) {
 
 export function unwatch(monobject, property) {
     return {
-        type: 'SEND_REQUEST',
+        type: SEND_REQUEST,
         payload: {
             message: "UnWatch",
             data: {
@@ -206,12 +207,5 @@ export function unwatch(monobject, property) {
                 property: property
             }
         }
-    };
-}
-
-export function init() {
-    return {
-        type: 'INIT',
-        payload: {}
     };
 }

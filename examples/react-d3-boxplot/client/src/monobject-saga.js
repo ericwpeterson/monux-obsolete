@@ -184,7 +184,7 @@ export function* read(msgSource) {
 
 export function* write(msgSource) {
     while (true) {
-        const action = yield take('SEND_REQUEST');
+        const action = yield take('monobject/SEND_REQUEST');
         yield put(opStarted(action));
         yield call(msgSource.emit,action.payload.message, action.payload.data);
     }

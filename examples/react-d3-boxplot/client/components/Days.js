@@ -3,6 +3,7 @@ import { PropTypes } from 'react'
 import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
 import { dayChange, unmountDay } from  '../src/ducks/day.js'
+import {renderChart} from '../src/line-chart'
 
 let lineGraphContainerStyle = {margin: 'auto', width: 800, height: 200,
     borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2
@@ -12,10 +13,33 @@ export class LineGraph extends React.Component {
     constructor() {
         super();
     }
+    componentDidMount() {
+
+        let tokens = this.props.day.split('-');
+        let y = tokens[0];
+        let m = tokens[1];
+        let d = tokens[2];
+
+        let dayBegin = new Date(y,+m - 1,d);
+        let dayEnd = new Date( dayBegin.getTime() + 86400000);
+
+        let data = [
+            {
+                date: dayBegin,
+                val: 22
+            },
+            {
+                date: dayEnd,
+                val: 45
+            }
+        ];
+        renderChart(this.props.id, data);
+    }
+
     render() {
         return (
-             <div style={lineGraphContainerStyle}>
-                {this.props.day}
+            <div>
+                <div id={this.props.id} style={lineGraphContainerStyle} > </div>
             </div>
         );
     }
@@ -32,6 +56,7 @@ export class Days extends React.Component {
        dayChange: PropTypes.func.isRequired
     };
 
+    //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
         try {
             if ( this.props.dayState.unmountDay === true  ) {
@@ -45,11 +70,13 @@ export class Days extends React.Component {
     }
 
     render() {
-
         let child;
 
         if ( this.props.dayState.currentDay &&  !this.props.dayState.unmountDay ) {
-            child = <LineGraph day = {this.props.dayState.currentDay} />
+            child =
+                <LineGraph id='lineGraph' day={this.props.dayState.currentDay}
+                    dataPoint={this.props.dataPoint}
+            />
         }
 
         return (
@@ -62,7 +89,6 @@ export class Days extends React.Component {
         )
     }
 };
-
 
 function mapStateToProps(state) {
   return {

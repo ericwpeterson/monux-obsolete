@@ -3,7 +3,11 @@ import io from 'socket.io-client';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
 import { opStarted, opCompleted } from './monobject-actions';
 
-const PORT = 8090;
+
+let PORT;
+if( SAGA_PORT) {
+    PORT =  +SAGA_PORT; //only will be defined if running from webpack-dev-server
+}
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -57,12 +61,15 @@ var Socket = function() {
 
     return {
         connect: function() {
-            let s = io.connect();
 
-            let protocol = s.io.engine.secure ? "https://" : "http://";
-            socket = io.connect(protocol + s.io.engine.hostname + ":" + PORT);
-
-            s.disconnect();
+            if ( SAGA_PORT )  {
+                let s = io.connect();
+                let protocol = s.io.engine.secure ? "https://" : "http://";
+                socket = io.connect(protocol + s.io.engine.hostname + ":" + SAGA_PORT);
+                s.disconnect();
+            } else {
+                socket = io.connect();
+            }
 
             socket.on('opCompleted', (opCompletedPacket) => {
 

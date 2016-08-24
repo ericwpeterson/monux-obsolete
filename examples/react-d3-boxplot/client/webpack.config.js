@@ -1,5 +1,9 @@
 var webpack = require('webpack');
 
+var definePlugin = new webpack.DefinePlugin({
+    SAGA_PORT: '8090' //the port the socket server is listening on. cant be 8080 because we are using it
+});
+
 module.exports = {
   entry: [
     'webpack-dev-server/client?http://0.0.0.0:8080',
@@ -26,6 +30,7 @@ module.exports = {
     hot: true
   },
   plugins: [
+    definePlugin,
     new webpack.HotModuleReplacementPlugin()
   ]
 };

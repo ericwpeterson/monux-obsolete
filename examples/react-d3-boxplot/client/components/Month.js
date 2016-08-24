@@ -4,9 +4,7 @@ import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
 import Weeks from './Weeks';
 import { monthChange, unmountWeeks } from  '../src/ducks/month.js'
-import toD3BoxPlot from '../src/to-d3-boxplot'
-
-let divStyle = {}
+import toD3BoxPlot, {toD3BoxPlotMinMax} from '../src/to-d3-boxplot'
 
 export class Month extends React.Component {
     constructor() {
@@ -19,6 +17,7 @@ export class Month extends React.Component {
        monthChange: PropTypes.func.isRequired
     };
 
+    //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
         try {
             if ( this.props.monthState.unmountWeeks === true  ) {
@@ -36,23 +35,24 @@ export class Month extends React.Component {
         let child;
 
         let data = toD3BoxPlot(this.props.dataPoint)(this.props.stats);
+        let plotMinMax = toD3BoxPlotMinMax(data);
 
         boxplot = <BoxPlot id='months' title='Months'
-                    data={data} min={this.props.stats.range[this.props.dataPoint].min}
-                    max={this.props.stats.range[this.props.dataPoint].max}
+                    data={data} min={plotMinMax.min}
+                    max={plotMinMax.max}
                     clickHandler={this.clickHandler}
                     />
 
-
         //the second half takes care of rendering the child box item
-        if ( this.props.monthState.currentMonth   &&  !this.props.monthState.unmountWeeks  ) {
-
+        if ( this.props.monthState.currentMonth  &&  !this.props.monthState.unmountWeeks  ) {
             try {
                 let data = toD3BoxPlot(this.props.dataPoint)(this.props.stats[this.props.monthState.currentMonth].children);
-                let month = this.props.stats[this.props.monthState.currentMonth];
+                let plotMinMax = toD3BoxPlotMinMax(data);
 
-                child = <Weeks data={data} min={month.range[this.props.dataPoint].min}
-                            max={month.range[this.props.dataPoint].max} month={this.props.monthState.currentMonth}
+                child = <Weeks data={data}
+                            min={plotMinMax.min}
+                            max={plotMinMax.max}
+                            month={this.props.monthState.currentMonth}
                             dataPoint={this.props.dataPoint}
                             stats={this.props.stats[this.props.monthState.currentMonth].children}
                         />;
@@ -62,7 +62,7 @@ export class Month extends React.Component {
 
         return (
             <div>
-                <div style={divStyle}>
+                <div>
                     {boxplot}
                     {child}
                 </div>

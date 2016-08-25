@@ -1,6 +1,5 @@
 import {Map, List } from 'immutable';
 import Immutable from 'immutable';
-import _ from 'underscore';
 
 export const REQUEST = {
     IN_PROGRESS: 'IN_PROGRESS',
@@ -8,27 +7,32 @@ export const REQUEST = {
     ERROR: 'ERROR'
 };
 
+// Actions
+const OP_COMPLETED  = 'monobject/OP_COMPLETED';
+const OP_STARTED    = 'monobject/OP_STARTED';
+const SEND_REQUEST  = 'monobject/SEND_REQUEST';
+
 const DEFAULT_STATE = Map({});
 
 export default function monobjectReducer(state = DEFAULT_STATE, action) {
+    let ret;
 
     switch (action.type) {
 
-        case 'OP_COMPLETED':
-            return opCompleted(state, action.payload);
+        case OP_COMPLETED:
+            ret = _opCompleted(state, action.payload);
+            return ret;
 
-        case 'OP_STARTED':
-            return opStarted(state, action.payload);
-
-        case 'INIT':
-            return DEFAULT_STATE;
+        case OP_STARTED:
+            ret = _opStarted(state, action.payload);
+            return ret;
 
         default:
             return state;
     }
 }
 
-function opStarted(state, action) {
+function _opStarted(state, action) {
 
     let currentValue;
     let ret;
@@ -89,8 +93,7 @@ function opStarted(state, action) {
     return ret;
 }
 
-function opCompleted(state, payload) {
-
+function _opCompleted(state, payload) {
     let tokens = payload.op.split('::');
     let cmd = tokens[0];
     let arg = tokens[1]; //may be a property or method name
@@ -111,7 +114,7 @@ function opCompleted(state, payload) {
     } else {
         if (cmd === "Get" || cmd === 'Set' || cmd === 'Call' ||  (cmd === 'Watch' && payload.value)) {
             ret = state.setIn(['monobjects', payload.monObject, key, arg],
-            Map({value: payload.value, state: REQUEST.COMPLETED}));
+              Map({value: payload.value, state: REQUEST.COMPLETED}));
         } else if (cmd === 'UnWatch' || cmd === 'Watch') {
             //preserve the value
             let currentValue = state.getIn(['monobjects', payload.monObject, key, arg, 'value']);
@@ -122,4 +125,87 @@ function opCompleted(state, payload) {
     }
 
     return ret;
+}
+
+// Action Creators
+
+export function opStarted(action) {
+    return {
+        type: OP_STARTED,
+        payload: action
+    };
+}
+
+export function opCompleted(payload) {
+    return {
+        type: OP_COMPLETED,
+        payload: payload
+    };
+}
+
+export function get(monobject, property) {
+    return {
+        type: SEND_REQUEST,
+        payload: {
+            message: "Get",
+            data: {
+                monObject: monobject,
+                property: property
+            }
+        }
+    };
+}
+
+export function set(monobject, property, value) {
+    return {
+        type: SEND_REQUEST,
+        payload: {
+            message: "Set",
+            data: {
+                monObject: monobject,
+                property: property,
+                value: value
+            }
+        }
+    };
+}
+
+export function call(monobject, method, args) {
+    return {
+        type: SEND_REQUEST,
+        payload: {
+            message: "Call",
+            data: {
+                monObject: monobject,
+                method: method,
+                args: args
+            }
+        }
+    };
+}
+
+export function watch(monobject, property) {
+    return {
+        type: SEND_REQUEST,
+        payload: {
+            message: "Watch",
+            data: {
+                monObject: monobject,
+                property: property
+            }
+        }
+    };
+}
+
+export function unwatch(monobject, property) {
+    return {
+        type: SEND_REQUEST,
+        payload: {
+            message: "UnWatch",
+            data: {
+                monObject: monobject,
+                property: property
+            }
+        }
+    };
 }

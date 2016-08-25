@@ -1,8 +1,7 @@
 
 import io from 'socket.io-client';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
-import { opStarted, opCompleted } from './monobject-actions';
-
+import { opStarted, opCompleted } from './ducks/monobject';
 
 let PORT;
 if( SAGA_PORT) {
@@ -70,7 +69,7 @@ var Socket = function() {
             } else {
                 socket = io.connect();
             }
-
+            
             socket.on('opCompleted', (opCompletedPacket) => {
 
                 if (this.onmessage) {
@@ -189,7 +188,7 @@ export function* read(msgSource) {
 
 export function* write(msgSource) {
     while (true) {
-        const action = yield take('SEND_REQUEST');
+        const action = yield take('monobject/SEND_REQUEST');
         yield put(opStarted(action));
         yield call(msgSource.emit,action.payload.message, action.payload.data);
     }

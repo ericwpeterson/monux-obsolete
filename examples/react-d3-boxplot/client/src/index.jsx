@@ -3,14 +3,11 @@ import ReactDOM from 'react-dom';
 import AppContainer from '../components/App.js';
 import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-
-import reducer from './reducers/index'
-
+import reducer from './ducks/index'
 import rootSaga from './monobject-saga';
 import createSagaMiddleware from 'redux-saga';
 
 const sagaMiddleware = createSagaMiddleware();
-
 const store = createStore(reducer, applyMiddleware(sagaMiddleware));
 
 sagaMiddleware.run(rootSaga);

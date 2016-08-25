@@ -1,9 +1,12 @@
 
 import io from 'socket.io-client';
 import { fork, take, call, put, cancel } from 'redux-saga/effects';
-import { opStarted, opCompleted } from './monobject-actions';
+import { opStarted, opCompleted } from './ducks/monobject';
 
-const PORT = 8090;
+let PORT;
+if( SAGA_PORT) {
+    PORT =  +SAGA_PORT; //only will be defined if running from webpack-dev-server
+}
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -57,11 +60,16 @@ var Socket = function() {
 
     return {
         connect: function() {
-            let s = io.connect();
 
-            let protocol = s.io.engine.secure ? "https://" : "http://";
-            socket = io.connect(protocol + s.io.engine.hostname + ":" + PORT);
-
+            if ( SAGA_PORT )  {
+                let s = io.connect();
+                let protocol = s.io.engine.secure ? "https://" : "http://";
+                socket = io.connect(protocol + s.io.engine.hostname + ":" + SAGA_PORT);
+                s.disconnect();
+            } else {
+                socket = io.connect();
+            }
+            
             socket.on('opCompleted', (opCompletedPacket) => {
 
                 if (this.onmessage) {
@@ -180,7 +188,7 @@ export function* read(msgSource) {
 
 export function* write(msgSource) {
     while (true) {
-        const action = yield take('SEND_REQUEST');
+        const action = yield take('monobject/SEND_REQUEST');
         yield put(opStarted(action));
         yield call(msgSource.emit,action.payload.message, action.payload.data);
     }

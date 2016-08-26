@@ -1,18 +1,11 @@
 import { combineReducers } from 'redux';
+
 import monobjectReducer from './monobject';
-import statReducer from './stats';
-import appReducer from './app';
-import monthReducer from './month';
+import boxplotReducer from './boxplots';
 
-import weekReducer from './week';
-import dayReducer from './day';
-
-let monobjects = statReducer(monobjectReducer);
+let app = boxplotReducer(monobjectReducer);
 
 export default combineReducers({
-    monobjects,
-    appReducer,
-    monthReducer,
-    weekReducer,
-    dayReducer
+    app,
+    monobjectReducer
 });

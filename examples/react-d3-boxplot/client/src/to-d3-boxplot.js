@@ -10,7 +10,15 @@ let pickFields = R.curry((obj, key)  => [key,
                                         ]);
 let iterateObjectKeys = (obj) => R.map(pickFields(obj), R.keys(obj));
 let filter = obj =>  obj.max && obj.min && obj.median && obj.q1 && obj.q3 && obj.outliers;
+
+
 let toD3BoxPlot = (dataPoint) => R.compose(iterateObjectKeys, R.filter(filter), R.map(getItems(dataPoint)));
+
+export function toD3BoxPlotDebug(dataPoint, items) {
+    console.log('dataPoint', dataPoint);
+    console.log('items', items);
+}
+
 
 
 export function toD3BoxPlotMinMax(plotData) {

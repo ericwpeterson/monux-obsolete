@@ -114,7 +114,7 @@ function _opCompleted(state, payload) {
     } else {
         if (cmd === "Get" || cmd === 'Set' || cmd === 'Call' ||  (cmd === 'Watch' && payload.value)) {
             ret = state.setIn(['monobjects', payload.monObject, key, arg],
-              Map({value: payload.value, state: REQUEST.COMPLETED}));
+              Map({value: payload.value || payload.ret, state: REQUEST.COMPLETED}));
         } else if (cmd === 'UnWatch' || cmd === 'Watch') {
             //preserve the value
             let currentValue = state.getIn(['monobjects', payload.monObject, key, arg, 'value']);

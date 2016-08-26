@@ -2,48 +2,8 @@ import React from 'react';
 import { PropTypes } from 'react'
 import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
-import { dayChange, unmountDay } from  '../src/ducks/day.js'
-import {renderChart} from '../src/line-chart'
-
-let lineGraphContainerStyle = {margin: 'auto', width: 800, height: 200,
-    borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2
-};
-
-export class LineGraph extends React.Component {
-    constructor() {
-        super();
-    }
-    componentDidMount() {
-
-        let tokens = this.props.day.split('-');
-        let y = tokens[0];
-        let m = tokens[1];
-        let d = tokens[2];
-
-        let dayBegin = new Date(y,+m - 1,d);
-        let dayEnd = new Date( dayBegin.getTime() + 86400000);
-
-        let data = [
-            {
-                date: dayBegin,
-                val: 22
-            },
-            {
-                date: dayEnd,
-                val: 45
-            }
-        ];
-        renderChart(this.props.id, data);
-    }
-
-    render() {
-        return (
-            <div>
-                <div id={this.props.id} style={lineGraphContainerStyle} > </div>
-            </div>
-        );
-    }
-}
+import LineChart from './LineChart';
+import { dayChange, mountChart } from  '../src/ducks/boxplots'
 
 export class Days extends React.Component {
     constructor() {
@@ -56,13 +16,21 @@ export class Days extends React.Component {
        dayChange: PropTypes.func.isRequired
     };
 
+    componentDidMount() {
+        try {
+            if ( this.props.app.days.unMountChild ) {
+                this.props.unmountDay(false);
+            }
+        } catch (e) {}
+    }
+
     //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
         try {
-            if ( this.props.dayState.unmountDay === true  ) {
+            if ( this.props.app.days.unMountChild ) {
                 this.props.unmountDay(false);
             }
-        } catch(e) {}
+        } catch (e) {}
     }
 
     clickHandler(d) {
@@ -70,39 +38,43 @@ export class Days extends React.Component {
     }
 
     render() {
-        let child;
+        let day;
 
-        if ( this.props.dayState.currentDay &&  !this.props.dayState.unmountDay ) {
-            child =
-                <LineGraph id='lineGraph' day={this.props.dayState.currentDay}
-                    dataPoint={this.props.dataPoint}
-            />
+        console.log('days this.props', this.props);
+
+        if ( this.props.app.days && this.props.app.days.currentDay &&
+            !this.props.app.days.unMountChild ) {
+            day = <LineChart />
         }
 
         return (
             <div>
-                <BoxPlot id='days' title='Days' data={this.props.data} min={this.props.min} max={this.props.max}
+                <BoxPlot id='days' title='Days'
+                    data={this.props.app.days.chartData} min={this.props.app.days.minMax.min}
+                    max={this.props.app.days.minMax.max}
                     clickHandler={this.clickHandler}
                 />
-                {child}
+                {day}
             </div>
         )
     }
 };
 
 function mapStateToProps(state) {
-  return {
-        dayState: state.dayReducer.toJS()
+    return {
+        app: state.app.toJS()
     };
 }
+
+
 
 const mapDispatchToProps = (dispatch) => {
     return {
         unmountDay: (val) => {
-            dispatch(unmountDay(val))
+            dispatch(mountChart('days', val));
         },
-        dayChange: (val) => {
-            dispatch(dayChange(val))
+        dayChange: (day) => {
+            dispatch(dayChange(day));
         }
     }
 }

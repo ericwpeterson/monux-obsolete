@@ -28,8 +28,50 @@ var StatsMonObject = function() {
         },
 
         call: function(method, args, cb, user) {
-            if (method === 'testMethod') {
-                cb(null, "you called?");
+            if (method === 'getLineChartData') {
+                if ( args.length && args.length === 2 ) {
+                    let tokens = args[0].split('-');
+                    if ( !tokens.length || tokens.length !== 3) {
+                        cb("invalid args", "getLineChartData");
+                    } else {
+
+                        let y = tokens[0];
+                        let m = tokens[1];
+                        let d = tokens[2];
+
+                        let dayBegin = new Date(y,+m - 1,d);
+                        let dayEnd = new Date( dayBegin.getTime() + 86400000);
+
+                        let base;
+                        let offset;
+
+                        if ( args[1] === 'temperatureF') {
+                            base = 67;
+                            offset = 9;
+                        } else if ( args[1] === 'cO2Level') {
+                            base = 400;
+                            offset = 1150;
+                        } else {
+                            base = 42;
+                            offset = 6
+                        }
+
+                        let data = [
+                            {
+                                date: dayBegin.getTime(),
+                                val: base
+                            },
+                            {
+                                date: dayEnd.getTime(),
+                                val: base + offset
+                            }
+                        ];
+
+                        cb(null, data);
+                    }
+                } else {
+                    cb("invalid args", "getLineChartData");
+                }
                 return;
             } else {
                 return monObject.call(method,args,cb,user);
@@ -53,4 +95,3 @@ var StatsMonObject = function() {
 export function createStatsObject() {
     return new StatsMonObject();
 }
-

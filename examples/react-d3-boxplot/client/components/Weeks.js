@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
 import Days from './Days';
 import { weekChange, mountChart } from  '../src/ducks/boxplots'
-import toD3BoxPlot, {toD3BoxPlotMinMax} from '../src/to-d3-boxplot'
+
 
 export class Weeks extends React.Component {
     constructor() {

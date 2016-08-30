@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import {BoxPlot} from './BoxPlot';
 import Weeks from './Weeks';
 import { monthChange, mountChart } from  '../src/ducks/boxplots'
-import toD3BoxPlot, {toD3BoxPlotMinMax} from '../src/to-d3-boxplot'
 
 export class Month extends React.Component {
     constructor() {
@@ -39,9 +38,6 @@ export class Month extends React.Component {
     }
 
     render() {
-
-        console.log(' Month this.props', this.props );
-
         let boxplot;
         let weeks;
 
@@ -49,6 +45,8 @@ export class Month extends React.Component {
             data={this.props.app.months.chartData} min={this.props.app.months.minMax.min}
             max={this.props.app.months.minMax.max}
             clickHandler={this.clickHandler}
+            currentItem={this.props.app.months.currentMonth}
+            classPrefix={'month-'}
         />
 
         if ( this.props.app.weeks && this.props.app.weeks.chartData &&

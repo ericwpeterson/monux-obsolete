@@ -8,7 +8,10 @@ let boxPlotContainerStyle = {margin: 'auto', width: 800, height: 200,
 export class BoxPlot extends React.Component {
 
     componentDidMount() {
-        renderChart(this.props.title, this.props.id, this.props.data, this.props.min, this.props.max, this.props.clickHandler);
+        renderChart(this.props.title, this.props.id,
+            this.props.data, this.props.min,
+            this.props.max, this.props.clickHandler,
+            this.props.currentItem, this.props.classPrefix);
     }
 
     render() {

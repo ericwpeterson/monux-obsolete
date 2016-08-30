@@ -53,10 +53,6 @@ export let D3box = function(min, max) {
             if (isValid) {
                 //vertical line
                 center.enter().insert("line", "rect")
-                    .on("click", function(d) {
-                        console.log('rect area clicked');
-                        clickHandler(d);
-                    })
                     .attr("class", "center")
                     .attr("x1", width / 2)
                     .attr("y1", function(d) { return x0(d[0]); })
@@ -302,11 +298,16 @@ export let D3box = function(min, max) {
     return box;
 };
 
-export function renderChart(title, containerName, data, min, max, clickHandler) {
-
+export function renderChart(title, containerName, data, min, max, clickHandler, currentItem, classPrefix) {
     //allow the container to dictate the width
     var containerWidth = document.getElementById(containerName).offsetWidth;
     var containerHeight = document.getElementById(containerName).offsetHeight;
+
+    let _currentItem;
+
+    if (currentItem) {
+        _currentItem = '#' + classPrefix + currentItem;
+    }
 
     var labels = true; // show the text labels beside individual boxplots?
     var margin = {top: 30, right: 50, bottom: 70, left: 50};
@@ -349,11 +350,24 @@ export function renderChart(title, containerName, data, min, max, clickHandler) 
     svg.selectAll(".box")
       .data(data)
       .enter().append("g")
+        .on('mouseover', function(d) {
+            d3.select(this).style("cursor", "pointer");
+        })
+        .on('mouseout', function(d) {
+            d3.select(this).style("cursor", "default");
+        })
         .on("click", function(d) {
+            if (_currentItem) {
+                d3.selectAll(_currentItem).style("font-weight", 'normal');
+                d3.selectAll(_currentItem).style("text-decoration", 'initial');
+            }
+            _currentItem = '#' + classPrefix + d[0];
+            d3.selectAll('#' + classPrefix + d[0]).style("font-weight", 'bold');
+            d3.selectAll('#' + classPrefix + d[0]).style("text-decoration", 'underline');
             clickHandler(d);
         })
         .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; })
-      .call(chart.width(x.rangeBand()));
+        .call(chart.width(x.rangeBand()));
 
     // add a title
     svg.append("text")
@@ -377,14 +391,27 @@ export function renderChart(title, containerName, data, min, max, clickHandler) 
 
     // draw x axis
     svg.append("g")
+      .attr("id", "xaxis")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + (height  + margin.top + 10) + ")")
       .call(xAxis)
-      .append("text")             // text label for the x axis
+      .append("text")
         .attr("x", (width / 2))
         .attr("y",  20)
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
         .style("font-size", "16px")
         .text("");
+
+    svg.selectAll('#xaxis').selectAll('.tick')
+        .attr("id", function(d) {
+            let id =  classPrefix + d;
+            return id;
+        });
+
+    //set item active
+    if (_currentItem) {
+        d3.selectAll(_currentItem).style("font-weight", 'bold');
+        d3.selectAll(_currentItem).style("text-decoration", 'underline');
+    }
 }

@@ -8,7 +8,7 @@ import Month from './Month.js';
 
 let buttonDivStyle = {margin: 'auto', width: 200};
 
-export default class App extends React.Component {
+class App extends React.Component {
     constructor() {
         super();
     }

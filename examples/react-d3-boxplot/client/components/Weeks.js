@@ -41,7 +41,7 @@ export class Weeks extends React.Component {
 
     render() {
         let days;
-        
+
         if ( this.props.app.days && this.props.app.days.chartData &&
             !this.props.app.weeks.unMountChild ) {
             days = <Days />

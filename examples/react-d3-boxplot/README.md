@@ -9,17 +9,17 @@ This example builds off of colors example. It uses a get action for getting a li
 
 ## Instructions
 
-* Open two terminals. 
+  Open two terminals. 
 
-* In first terminal
-* cd server
-* npm install
-* npm start
+  In first terminal
+  cd server
+  npm install
+  npm start
 
-* In second terminal
-* cd client
-* npm install 
-* webpack-dev-server --host 0.0.0.0
+  In second terminal
+  cd client
+  npm install 
+  webpack-dev-server --host 0.0.0.0
 
-* browser http://IPADDR:8080
+  browser http://IPADDR:8080
 

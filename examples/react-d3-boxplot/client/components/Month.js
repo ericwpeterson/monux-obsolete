@@ -34,7 +34,7 @@ export class Month extends React.Component {
     }
 
     clickHandler(d) {
-        this.props.monthChange(d[0]);
+        this.props.monthChange(d[0] + '-01');
     }
 
     render() {

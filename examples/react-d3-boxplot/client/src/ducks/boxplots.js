@@ -2,18 +2,41 @@ import {Map, List } from 'immutable';
 import Immutable from 'immutable';
 import R, {map} from 'ramda';
 
-import toD3BoxPlot, {toD3BoxPlotMinMax, toD3BoxPlotDebug } from '../to-d3-boxplot'
+import toD3BoxPlot, {toD3BoxPlotMinMax, formatMonths,
+    getYears, filterByYear } from '../to-d3-boxplot';
 
 const DEFAULT_STATE = Map({currentDataPoint: 'temperatureF'});
 
 // Actions
 const DATAPOINT_CHANGE  = 'app/DATAPOINT_CHANGE';
 const OP_COMPLETED      = 'monobject/OP_COMPLETED';
+const YEAR_CHANGE      = 'app/YEAR_CHANGE';
 const MONTH_CHANGE      = 'app/MONTH_CHANGE';
 const WEEK_CHANGE       = 'app/WEEK_CHANGE';
 const DAY_CHANGE        = 'app/DAY_CHANGE';
-
 const MOUNT_CHART     = 'app/MOUNT_CHART';
+
+function setStats(key, state, stats) {
+    let plotMinMax = toD3BoxPlotMinMax(stats);
+    let ret = state.set(key, Map({}))  ;
+    ret = ret.setIn([key, 'chartData'], stats);
+    ret = ret.setIn([key, 'minMax'], plotMinMax);
+    return ret;
+}
+
+function setMonthStats(state, data) {
+    data = formatMonths(data);
+    let filtered = filterByYear(state.get('currentYear'), data);
+    return setStats('months',state,filtered);
+}
+
+function setWeekStats(state, data) {
+    return setStats('weeks',state,data);
+}
+
+function setDayStats(state, data) {
+    return setStats('days',state,data);
+}
 
 export default function(wrapped) {
     let ret = function(state = DEFAULT_STATE, action) {
@@ -21,14 +44,14 @@ export default function(wrapped) {
         switch (action.type) {
 
             case OP_COMPLETED:
-                let stats = reduce(state, action);
-                if ( stats ) {
-                    ret = state.set('stats', stats );
-                    let data = toD3BoxPlot(ret.get('currentDataPoint'))  (ret.get('stats'));
-                    let plotMinMax = toD3BoxPlotMinMax(data);
-                    ret = ret.set('months', Map({}) )  ;
-                    ret = ret.setIn(['months', 'chartData'], data );
-                    ret = ret.setIn(['months', 'minMax'], plotMinMax );
+                let stats = opCompleted(state, action);
+                if (stats) {
+                    ret = state.set('stats', stats);
+                    let data = toD3BoxPlot(ret.get('currentDataPoint'))(ret.get('stats'));
+                    let years = getYears(data);
+                    ret = ret.set('years', years);
+                    ret = ret.set('currentYear', years[years.length - 1]);
+                    ret = setMonthStats(ret, data);
                     return ret;
                 } else {
                     return wrapped(state, action);
@@ -37,6 +60,9 @@ export default function(wrapped) {
 
             case DATAPOINT_CHANGE:
                 return updateCharts(state, action.dataPoint);
+
+            case YEAR_CHANGE:
+                return changeYear(state, action.year);
 
             case MONTH_CHANGE:
                 return changeMonth(state, action.month);
@@ -48,7 +74,7 @@ export default function(wrapped) {
                 return changeDay(state, action.day);
 
             case MOUNT_CHART:
-                return changeChartMountValue( state, action.payload );
+                return changeChartMountValue(state, action.payload);
         }
 
         return wrapped(state, action);
@@ -57,27 +83,22 @@ export default function(wrapped) {
 }
 
 function changeChartMountValue(state, chartData) {
-    console.log('changeChartMountValue', chartData )
-
     if (chartData.chart === 'app') {
-        return state.set('unMountChild', chartData.value );
+        return state.set('unMountChild', chartData.value);
     } else {
-        return state.setIn([chartData.chart, 'unMountChild'], chartData.value );
+        return state.setIn([chartData.chart, 'unMountChild'], chartData.value);
     }
 }
 
-function changeMonth(state, month) {
-    let ret = state.setIn(['months', 'currentMonth'], month );
-    ret = ret.setIn(['months', 'unMountChild'], true );
-    let items = ret.get('stats')[month];
-    let data = toD3BoxPlot(ret.get('currentDataPoint'))(items.children);
-    let plotMinMax = toD3BoxPlotMinMax(data);
+function changeYear(state, year) {
+    let ret = state.set('currentYear', year);
+    let data = toD3BoxPlot(ret.get('currentDataPoint'))(ret.get('stats'));
+    ret = setMonthStats(ret, data);
+    ret = ret.set('unMountChild', true);
 
-    ret = ret.set('weeks', Map({}));
-    ret = ret.setIn(['weeks', 'chartData'], data );
-    ret = ret.setIn(['weeks', 'minMax'], plotMinMax );
-
-    //when the month changes we need to nuke the days
+    if (ret.get('weeks')) {
+        ret = ret.delete('weeks');
+    }
     if (ret.get('days')) {
         ret = ret.delete('days');
     }
@@ -87,18 +108,32 @@ function changeMonth(state, month) {
     return ret;
 }
 
+function changeMonth(state, month) {
+    let ret = state.setIn(['months', 'currentMonth'], month);
+    ret = ret.setIn(['months', 'unMountChild'], true);
+
+    let items = ret.get('stats')[month];
+    let data = toD3BoxPlot(ret.get('currentDataPoint'))(items.children);
+    ret = setWeekStats(ret, data);
+
+    if (ret.get('days')) {
+        ret = ret.delete('days');
+    }
+    if (ret.get('day')) {
+        ret = ret.delete('day');
+    }
+
+    return ret;
+}
+
 function changeWeek(state, week) {
     let month = state.getIn(['months', 'currentMonth']);
-    let ret = state.setIn(['weeks', 'currentWeek'], week );
-    ret = ret.setIn(['weeks', 'unMountChild'], true );
+    let ret = state.setIn(['weeks', 'currentWeek'], week);
+    ret = ret.setIn(['weeks', 'unMountChild'], true);
     let items = ret.get('stats')[month].children[week];
     let data = toD3BoxPlot(ret.get('currentDataPoint'))(items.children);
-    let plotMinMax = toD3BoxPlotMinMax(data);
-    ret = ret.set('days', Map({}));
-    ret = ret.setIn(['days', 'chartData'], data );
-    ret = ret.setIn(['days', 'minMax'], plotMinMax );
+    ret = setDayStats(ret, data);
 
-    //when the week changes we need to nuke the day
     if (ret.get('day')) {
         ret = ret.delete('day');
     }
@@ -107,13 +142,13 @@ function changeWeek(state, week) {
 
 function changeDay(state, day) {
     let ret = state.setIn(['days', 'currentDay'], day);
-    ret = ret.setIn(['days', 'unMountChild'], true );
+    ret = ret.setIn(['days', 'unMountChild'], true);
     return ret;
 }
 
 //this fucnction intercepts responses and formats the data
 //in a way that is easy to recall
-function reduce(state, action) {
+function opCompleted(state, action) {
     let ret;
 
     if (action.payload.monObject === 'stats') {
@@ -137,46 +172,33 @@ function updateCharts(state, dataPoint) {
     let month;
     let week;
 
-    if (state.get('months') ) {
+    if (state.get('months')) {
         month = ret.getIn(['months', 'currentMonth']);
-        let data = toD3BoxPlot(ret.get('currentDataPoint'))  (ret.get('stats'));
-        let plotMinMax = toD3BoxPlotMinMax(data);
-        ret = ret.set('months', Map({}));
-        ret = ret.setIn(['months', 'unMountChild'], true );
-        ret = ret.setIn(['months', 'chartData'], data );
-        ret = ret.setIn(['months', 'minMax'], plotMinMax );
-        if( month ) {
-            ret = ret.setIn(['months', 'currentMonth'], month );
+        let data = toD3BoxPlot(ret.get('currentDataPoint'))(ret.get('stats'));
+        ret = setMonthStats(ret, data);
+        if (month) {
+            ret = ret.setIn(['months', 'currentMonth'], month);
         }
     }
-    if ( month ) {
-        if (ret.get('weeks') ) {
+    if (month) {
+        if (ret.get('weeks')) {
             let week = ret.getIn(['weeks', 'currentWeek']);
+            let items = ret.get('stats')[month];
+            let data = toD3BoxPlot(ret.get('currentDataPoint'))(items.children);
+            ret = ret.setIn(['weeks', 'unMountChild'], true);
+            ret = setWeekStats(ret, data);
+            ret = ret.setIn(['weeks', 'currentWeek'], week);
 
-            //if (week) {
-                let items = ret.get('stats')[month];
-                let data = toD3BoxPlot(ret.get('currentDataPoint'))  (items.children);
-                let plotMinMax = toD3BoxPlotMinMax(data);
-                ret = ret.set('weeks', Map({}));
-                ret = ret.setIn(['weeks', 'unMountChild'], true );
-                ret = ret.setIn(['weeks', 'chartData'], data );
-                ret = ret.setIn(['weeks', 'minMax'], plotMinMax );
-                ret = ret.setIn(['weeks', 'currentWeek'], week );
-
-                if (ret.get('days') ) {
-                    let day = ret.getIn(['days', 'currentDay']);
-                    if ( week ) {
-                        let items = ret.get('stats')[month].children[week];
-                        let data = toD3BoxPlot(ret.get('currentDataPoint'))  (items.children);
-                        let plotMinMax = toD3BoxPlotMinMax(data);
-                        ret = ret.set('days', Map({}));
-                        ret = ret.setIn(['days', 'unMountChild'], true );
-                        ret = ret.setIn(['days', 'chartData'], data );
-                        ret = ret.setIn(['days', 'minMax'], plotMinMax );
-                        ret = ret.setIn(['days', 'currentDay'], day );
-                    }
+            if (ret.get('days')) {
+                let day = ret.getIn(['days', 'currentDay']);
+                if (week) {
+                    ret = ret.setIn(['days', 'unMountChild'], true);
+                    let items = ret.get('stats')[month].children[week];
+                    let data = toD3BoxPlot(ret.get('currentDataPoint'))(items.children);
+                    ret = setDayStats(ret, data);
+                    ret = ret.setIn(['days', 'currentDay'], day);
                 }
-            //}
+            }
         }
     }
 
@@ -190,27 +212,27 @@ export function hydrateStats(s) {
     }
     let stats = s[0];
 
-    let wr = R.curry(( days, acc, val ) => {
-        acc[val.date] = R.pick( R.without(['date'], R.keys(val)), val );
+    let wr = R.curry((days, acc, val) => {
+        acc[val.date] = R.pick(R.without(['date'], R.keys(val)), val);
         let dim = getDaysInWeek(days, val.date);
         let r = (acc,val) => {
-            acc[val.date] = R.pick( R.without(['date'], R.keys(val)), val );
+            acc[val.date] = R.pick(R.without(['date'], R.keys(val)), val);
             return acc;
-        }
-        let f = R.compose( R.reduce( r, {}), R.map(( i ) => i) );
+        };
+        let f = R.compose(R.reduce(r, {}), R.map((i) => i));
         acc[val.date].children = f(dim);
         return acc;
     });
-    let mr = R.curry(( weeks, acc, val ) => {
-        acc[val.date] = R.pick( R.without(['date'], R.keys(val)), val );
+    let mr = R.curry((weeks, acc, val) => {
+        acc[val.date] = R.pick(R.without(['date'], R.keys(val)), val);
 
         let wim = getWeeksInMonth(weeks, val.date);
-        let f = R.compose( R.reduce(wr(stats.daily), {}), R.map(( i ) => i) )
+        let f = R.compose(R.reduce(wr(stats.daily), {}), R.map((i) => i));
         acc[val.date].children = f(wim);
         return acc;
     });
 
-    let mapAndReduceMonths = R.compose( R.reduce(mr(stats.weekly), {}), R.map(( i ) => i) )
+    let mapAndReduceMonths = R.compose(R.reduce(mr(stats.weekly), {}), R.map((i) => i));
     return mapAndReduceMonths(stats.monthly);
 }
 
@@ -234,7 +256,6 @@ let isDayInWeek = R.curry((week, day) => {
 let getWeeksInMonth = (weeks, month) => R.filter(isWeekInMonth(month), weeks);
 let getDaysInWeek = (days, week) => R.filter(isDayInWeek(week), days);
 
-
 //Action Creators
 
 export function dataPointChange(dataPoint) {
@@ -244,8 +265,12 @@ export function dataPointChange(dataPoint) {
     };
 }
 
-//TODO: for these to be pure we need to get the current month, week and day
-//and pass them in ugh, glad i did this on a branch!!!!
+export function yearChange(year) {
+    return {
+        type: YEAR_CHANGE,
+        year: year
+    };
+}
 
 export function monthChange(month) {
     return {

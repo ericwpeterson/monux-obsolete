@@ -35,7 +35,6 @@ export class Weeks extends React.Component {
     }
 
     clickHandler(d) {
-        console.log( 'weekClickHandler called' );
         this.props.weekChange(d[0]);
     }
 

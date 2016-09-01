@@ -39,7 +39,8 @@ export class Days extends React.Component {
 
     render() {
         let day;
-        
+
+        console.log("days this.props=", this.props);
         if ( this.props.app.days && this.props.app.days.currentDay &&
             !this.props.app.days.unMountChild ) {
             day = <LineChart />

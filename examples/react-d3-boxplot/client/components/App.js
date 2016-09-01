@@ -2,11 +2,12 @@ import React from 'react';
 import { PropTypes } from 'react'
 import { connect } from 'react-redux';
 import { get, set, call, watch, unwatch } from '../src/ducks/monobject';
-import { Button } from 'react-bootstrap';
-import { mountChart, dataPointChange } from  '../src/ducks/boxplots'
+import { Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
+import { mountChart, dataPointChange, yearChange } from  '../src/ducks/boxplots'
 import Month from './Month.js';
+import R, {map} from 'ramda';
 
-let buttonDivStyle = {margin: 'auto', width: 200};
+let buttonDivStyle = {margin: 'auto', width: 300};
 
 class App extends React.Component {
     constructor() {
@@ -27,6 +28,10 @@ class App extends React.Component {
         this.props.dataPointChange(dp);
     }
 
+    yearSelector(year) {
+        this.props.yearChange(year);
+    }
+
     //this function is used to mount the d3 plot with the new data
     componentDidUpdate(prevProps, prevState) {
         try {
@@ -38,10 +43,18 @@ class App extends React.Component {
     }
 
     render() {
-
-        console.log(' app this.props', this.props );
-
         let month;
+        let yearButtons = [];
+
+        if ( this.props.app && this.props.app.years ) {
+            for ( let i =0; i < this.props.app.years.length; i++ ) {
+                let val = this.props.app.years[i];
+                yearButtons.push( <Button
+                    active={this.props.app.currentYear === val}
+                    onClick={this.yearSelector.bind(this,val) }> {val}
+                </Button>)
+            }
+        }
 
         try {
             if ( this.props.app.months.chartData && !this.props.app.unMountChild ) {
@@ -52,15 +65,24 @@ class App extends React.Component {
         return (
             <div>
                 <div style={buttonDivStyle}>
-                    <Button active={this.props.app.currentDataPoint==='temperatureF'?true:false}
-                        onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp.
-                    </Button>
-                    <Button active={this.props.app.currentDataPoint==='relativeHumidity'?true:false}
-                        onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH
-                    </Button>
-                    <Button active={this.props.app.currentDataPoint==='cO2Level'?true:false}
-                        onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02
-                    </Button>
+                    <ButtonToolbar>
+                        <ButtonGroup >
+                            <Button active={this.props.app.currentDataPoint==='temperatureF'?true:false}
+                                onClick={this.dataPointSelector.bind(this, 'temperatureF') }> Temp.
+                            </Button>
+                            <Button active={this.props.app.currentDataPoint==='relativeHumidity'?true:false}
+                                onClick={this.dataPointSelector.bind(this, 'relativeHumidity') }> RH
+                            </Button>
+                            <Button active={this.props.app.currentDataPoint==='cO2Level'?true:false}
+                                onClick={this.dataPointSelector.bind(this, 'cO2Level') }> C02
+                            </Button>
+                        </ButtonGroup >
+
+                        <ButtonGroup >
+                            {yearButtons}
+                        </ButtonGroup >
+
+                     </ButtonToolbar>
                 </div>
                 {month}
             </div>
@@ -84,6 +106,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         unmountMonths: (val) => {
             dispatch(mountChart('app', val))
+        },
+        yearChange: (year) => {
+            dispatch(yearChange(year))
         }
     }
 }

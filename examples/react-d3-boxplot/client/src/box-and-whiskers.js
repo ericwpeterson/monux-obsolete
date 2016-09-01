@@ -344,7 +344,8 @@ export function renderChart(title, containerName, data, min, max, clickHandler, 
 
     var yAxis = d3.svg.axis()
     .scale(y)
-    .orient("left");
+    .orient("left")
+    .ticks(5);
 
     // draw the boxplots
     svg.selectAll(".box")

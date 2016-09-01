@@ -3,7 +3,7 @@
 export let D3box = function(min, max) {
     var width = 1;
     var height = 1;
-    var duration = 0;
+    var duration = 300;
     var domain = null;
     var value = Number;
     //whether or not to show text labels

@@ -41,8 +41,9 @@
     "react-dom": "^15.0.1",
     "react-redux": "^4.4.5",
     "react-router": "^2.4.0",
-    "redux": "^3.5.2",    
+    "redux": "^3.5.2",
     "redux-saga": "^0.11.0",
-    "socket.io-client": "^1.4.5"
+    "socket.io-client": "^1.4.5",
+    "spin.js": "^2.3.2"
   }
 }

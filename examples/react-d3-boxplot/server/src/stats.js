@@ -42,32 +42,25 @@ var StatsMonObject = function() {
                         let dayBegin = new Date(y,+m - 1,d);
                         let dayEnd = new Date( dayBegin.getTime() + 86400000);
 
-                        let base;
-                        let offset;
 
+                        let increase;
                         if ( args[1] === 'temperatureF') {
-                            base = 67;
-                            offset = 9;
+                            increase = Math.PI * 10 / 17280;
                         } else if ( args[1] === 'cO2Level') {
-                            base = 400;
-                            offset = 1150;
+                            increase = Math.PI * 20 / 17280;
                         } else {
-                            base = 42;
-                            offset = 6
+                            increase = Math.PI * 30 / 17280;
                         }
 
-                        let data = [
-                            {
-                                date: dayBegin.getTime(),
-                                val: base
-                            },
-                            {
-                                date: dayEnd.getTime(),
-                                val: base + offset
-                            }
-                        ];
+                        let counter = 0;
+                        let data = []
+                        for ( let i = dayBegin.getTime(); i <= dayBegin.getTime() + 86400000; i+=5000 ) {
+                          data.push({date: i, val: Math.sin( counter ) / 2 + 0.5});
+                          counter += increase;
+                        }
 
-                        cb(null, data);
+                        setTimeout(()=>cb(null, data), 3000);
+
                     }
                 } else {
                     cb("invalid args", "getLineChartData");

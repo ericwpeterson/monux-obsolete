@@ -3,6 +3,7 @@ import { PropTypes } from 'react'
 import {renderChart} from '../src/line-chart'
 import { connect } from 'react-redux';
 import { get, set, call, watch, unwatch } from '../src/ducks/monobject';
+import Spinner from '../src/spinner'
 
 let lineGraphContainerStyle = {margin: 'auto', width: 800, height: 200,
     borderStyle: 'solid', borderColor: '#e9e7e4', borderRadius: 5, borderWidth: 2
@@ -40,6 +41,23 @@ export class LineGraph extends React.Component {
     render() {
         let child;
 
+        let showSpinner = false;
+
+        try {
+            if (this.props.monux.monobjects.stats.methods.getLineChartData.state === 'IN_PROGRESS') {
+                showSpinner = true;
+            }
+        } catch (e) {}
+
+        let spinner = <Spinner
+            showSpinner={showSpinner}
+            targetID="days"
+            config={{
+                top: '70%',
+                scale: 4
+            }}
+        />
+
         try {
             if ( this.props.monux.monobjects.stats.methods.getLineChartData.value &&
                 this.props.monux.monobjects.stats.methods.getLineChartData.state === 'COMPLETED' ) {
@@ -54,6 +72,7 @@ export class LineGraph extends React.Component {
 
         return (
             <div>
+                {spinner}
                 {child}
             </div>
         );

@@ -1,3 +1,4 @@
+import R from 'ramda'
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
 import { Button, FormControl, Modal } from 'react-bootstrap';

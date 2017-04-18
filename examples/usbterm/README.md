@@ -1,11 +1,6 @@
 
-# react-d3-boxplot
+# USB HID Terminal
 
-This example builds off of colors example. It uses a get action for getting a list of stats, and a call action for getting a list of points for a line graph. It wraps the monobject reducer to intercept a specific OP_COMPLETED response. Once received, it groups the stats by year, month, week, and days. Clicking each boxplot item drills down into the next group of box plots.
-
-## Screenshot
-
-![](boxplot.gif)
 
 ## Instructions
 
